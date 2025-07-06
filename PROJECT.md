@@ -17,7 +17,7 @@ and may using NoSql like MongoDB for storing real-time data, and a Chat channel 
 
 ## User
 * user is the main entity of the application, and will have the following properties:
-  * ID: a unique identifier for the user
+  * UID: a unique identifier for the user
   * Email: the primary email address of the user
   * Password: the password of the user (hashed), can be null if the user is registered with OAuth2
   * Name: the name of the user

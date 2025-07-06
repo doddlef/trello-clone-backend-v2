@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.kevin.trello_v2.account.mapper.AccountMapper">
+    <sql id="AccountColumns">
+        uid, email, password, name, avatar, verified, role, created_at, updated_at, archived
+    </sql>
+
+    <resultMap id="AccountResultMap" type="org.kevin.trello_v2.account.model.Account">
+        <id property="uid" column="uid"/>
+        <result property="email" column="email"/>
+        <result property="password" column="password"/>
+        <result property="name" column="name"/>
+        <result property="avatar" column="avatar"/>
+        <result property="verified" column="verified"/>
+        <result property="role"
+                column="role"
+                typeHandler="org.kevin.trello_v2.account.mapper.typeHandler.AccountRoleTypeHandler"
+        />
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="archived" column="archived"/>
+    </resultMap>
+
+    <insert id="insertAccount" parameterType="org.kevin.trello_v2.account.mapper.query.AccountInsertQuery">
+        INSERT INTO accounts (
+            <include refid="AccountColumns"/>
+        ) VALUES (
+            #{uid}, #{email}, #{password}, #{name}, #{avatar}, #{verified}, #{role}, DEFAULT, DEFAULT, DEFAULT
+        )
+    </insert>
+
+</mapper>
