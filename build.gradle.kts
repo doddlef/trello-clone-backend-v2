@@ -39,7 +39,7 @@ dependencies {
 //	implementation("org.springframework.boot:spring-boot-starter-websocket")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
-//	implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.4")
+	implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.4")
 	implementation("com.github.f4b6a3:ulid-creator:5.2.3")
 	// https://mvnrepository.com/artifact/commons-validator/commons-validator
 	implementation("commons-validator:commons-validator:1.9.0")
@@ -49,7 +49,7 @@ dependencies {
 //	implementation("com.github.pagehelper:pagehelper-spring-boot-starter:2.1.1")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 	developmentOnly("org.springframework.boot:spring-boot-docker-compose")
-//	runtimeOnly("org.postgresql:postgresql")
+	runtimeOnly("org.postgresql:postgresql")
 	// https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-impl
 	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.6")
 	// https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-jackson

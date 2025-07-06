@@ -16,6 +16,21 @@ attachments to cards.
 and may using NoSql like MongoDB for storing real-time data, and a Chat channel of the board will be built in future
 
 ## User
+* user is the main entity of the application, and will have the following properties:
+  * ID: a unique identifier for the user
+  * Email: the primary email address of the user
+  * Password: the password of the user (hashed), can be null if the user is registered with OAuth2
+  * Name: the name of the user
+  * Avatar: a URL to the user's avatar image
+  * is Verified: a boolean value indicating whether the user's email is verified or not
+  * role: the role of the user in the application (Admin, User)
+    * Admin: can manage users and boards
+    * User: can create and manage their own boards
+* including metadata:
+  * Created At: the date and time when the user was created
+  * Updated At: the date and time when the user was last updated
+  * is Archived: a boolean value indicating whether the user is archived or not
+
 user will be able to:
 - [] user can register with email and password
 - [] user need to verify email after registration
