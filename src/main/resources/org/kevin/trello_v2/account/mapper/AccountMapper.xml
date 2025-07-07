@@ -21,7 +21,10 @@
         />
         <result property="createdAt" column="created_at"/>
         <result property="updatedAt" column="updated_at"/>
-        <result property="status" column="status"/>
+        <result property="status"
+                column="status"
+                typeHandler="org.kevin.trello_v2.account.mapper.AccountStatusTypeHandler"
+        />
     </resultMap>
 
     <select id="findByEmail" parameterType="string" resultMap="AccountResultMap">

@@ -24,10 +24,10 @@ interface RegisterService {
     /**
      * Resends the verification email to the user.
      *
-     * @param uid The unique identifier of the user to whom the verification email should be resent.
+     * @param email The email address of the user to whom the verification email should be resent.
      * @return An ApiResponse indicating the success or failure of the operation.
      */
-    fun resendVerificationEmail(uid: String): ApiResponse
+    fun resendVerificationEmail(email: String): ApiResponse
 
     /**
      * Cleans up expired email verification tokens.

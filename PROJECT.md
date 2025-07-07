@@ -34,15 +34,6 @@ and may using NoSql like MongoDB for storing real-time data, and a Chat channel 
     * Locked: the user cannot login, but can be reactivated
     * Archived: the user is archived, and cannot login or use the application
 
-user will be able to:
-- [] user can register with email and password
-- [] user need to verify email after registration
-- [] user can resend verification email
-- [] user can login with email and password
-- [] user can login with OAuth2 (Google, Facebook, Github)
-- [] user can update profile (name, avatar)
-- [] user can change password, including a email verification
-
 ## Board
 * Board also contains:
   * Title: the name of the board

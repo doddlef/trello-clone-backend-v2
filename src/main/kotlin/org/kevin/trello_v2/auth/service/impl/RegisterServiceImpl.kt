@@ -162,6 +162,7 @@ class RegisterServiceImpl(
         }
 
         if (count != 1) throw TrelloException("Failed to activate account for uid: $uid")
+        accountCacheRepo.evict(uid)
     }
 
     @Transactional
@@ -191,8 +192,8 @@ class RegisterServiceImpl(
     }
 
     @Transactional
-    override fun resendVerificationEmail(uid: String): ApiResponse {
-        val account = accountMapper.findByUid(uid)
+    override fun resendVerificationEmail(email: String): ApiResponse {
+        val account = accountMapper.findByEmail(email)
             ?: throw BadArgumentException("Account not existed")
         if (account.verified) throw BadArgumentException("Account has been verified")
 
