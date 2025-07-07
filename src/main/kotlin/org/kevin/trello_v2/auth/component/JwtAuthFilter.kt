@@ -5,7 +5,7 @@ import io.jsonwebtoken.ExpiredJwtException
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import org.kevin.trello_v2.account.repo.AccountCacheRepo
+import org.kevin.trello_v2.account.repo.AccountRepo
 import org.kevin.trello_v2.auth.model.AccountDetailAdaptor
 import org.kevin.trello_v2.auth.service.impl.CookieService
 import org.kevin.trello_v2.framework.response.ApiResponse
@@ -28,7 +28,7 @@ val JWT_AUTH_WHITE_LIST = listOf(
 class JwtAuthFilter(
     private val jwtUtils: JwtUtils,
     private val cookieService: CookieService,
-    private val accountCacheRepo: AccountCacheRepo,
+    private val accountRepo: AccountRepo,
     private val objectMapper: ObjectMapper,
 ): OncePerRequestFilter() {
     private val pathMather = AntPathMatcher()
@@ -56,7 +56,7 @@ class JwtAuthFilter(
 
             val uid = jwtUtils.extractSubject(jwt)
             if (uid != null && SecurityContextHolder.getContext().authentication == null) {
-                val optional = accountCacheRepo.find(uid)
+                val optional = accountRepo.findByUid(uid)
 
                 if (optional != null && jwtUtils.isTokenValid(jwt, optional.uid)) {
                     val adaptor = AccountDetailAdaptor(optional)

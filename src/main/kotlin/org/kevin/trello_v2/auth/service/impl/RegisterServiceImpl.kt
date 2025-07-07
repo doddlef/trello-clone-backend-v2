@@ -2,10 +2,9 @@ package org.kevin.trello_v2.auth.service.impl
 
 import org.apache.commons.validator.routines.EmailValidator
 import org.kevin.trello_v2.account.mapper.AccountInsertQuery
-import org.kevin.trello_v2.account.mapper.AccountMapper
 import org.kevin.trello_v2.account.mapper.AccountUpdateQuery
 import org.kevin.trello_v2.account.model.Account
-import org.kevin.trello_v2.account.repo.AccountCacheRepo
+import org.kevin.trello_v2.account.repo.AccountRepo
 import org.kevin.trello_v2.auth.AuthProperties
 import org.kevin.trello_v2.auth.MAX_NICKNAME_LENGTH
 import org.kevin.trello_v2.auth.mapper.EmailActiveTokenMapper
@@ -25,8 +24,7 @@ import java.time.LocalDateTime
 
 @Service
 class RegisterServiceImpl(
-    private val accountMapper: AccountMapper,
-    private val accountCacheRepo: AccountCacheRepo,
+    private val accountRepo: AccountRepo,
     private val emailActiveTokenMapper: EmailActiveTokenMapper,
     private val emailService: EmailService,
     private val passwordEncoder: PasswordEncoder,
@@ -60,7 +58,7 @@ class RegisterServiceImpl(
         } ?: throw BadArgumentException("Nickname must be non-empty and up to $MAX_NICKNAME_LENGTH characters long.")
 
         // check if the email is already registered
-        accountMapper.findByEmail(email)?.let {
+        accountRepo.findByEmail(email)?.let {
             throw BadArgumentException("Email $email is already registered, account uid: ${it.uid}")
         }
     }
@@ -79,7 +77,7 @@ class RegisterServiceImpl(
             password = passwordEncoder.encode(vo.password),
             verified = false,
         )
-        val count = accountMapper.insertAccount(query)
+        val count = accountRepo.insertAccount(query)
         if (count != 1) throw TrelloException("Failed to insert account for email: query: ${query}")
         return query.uid
     }
@@ -155,12 +153,11 @@ class RegisterServiceImpl(
             uid = uid,
             verified = true
         ).let {
-            val count = accountMapper.updateAccount(it)
+            val count = accountRepo.updateAccount(it)
             count
         }
 
         if (count != 1) throw TrelloException("Failed to activate account for uid: $uid")
-        accountCacheRepo.evict(uid)
     }
 
     @Transactional
@@ -170,10 +167,8 @@ class RegisterServiceImpl(
         activeAccount(uid)
         emailActiveTokenMapper.deleteByContent(content)
 
-        return accountMapper.findByUid(uid)?.let {
-            accountCacheRepo.save(it)
-            it
-        } ?: throw TrelloException("Failed to find active account for uid: $uid")
+        return accountRepo.findByUid(uid)
+            ?: throw TrelloException("Failed to find active account for uid: $uid")
     }
 
     /**
@@ -191,7 +186,7 @@ class RegisterServiceImpl(
 
     @Transactional
     override fun resendVerificationEmail(email: String): ApiResponse {
-        val account = accountMapper.findByEmail(email)
+        val account = accountRepo.findByEmail(email)
             ?: throw BadArgumentException("Account not existed")
         if (account.verified) throw BadArgumentException("Account has been verified")
 
