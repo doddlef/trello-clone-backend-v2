@@ -18,6 +18,6 @@ class AuthEntryPoint(
         response: HttpServletResponse,
         authException: AuthenticationException
     ) {
-        resolver.resolveException(request, response, null, authException);
+        resolver.resolveException(request, response, null, authException)
     }
 }

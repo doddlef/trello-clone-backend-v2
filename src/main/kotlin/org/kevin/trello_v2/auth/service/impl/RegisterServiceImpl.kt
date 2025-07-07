@@ -38,8 +38,6 @@ class RegisterServiceImpl(
      * This method checks if the email format is valid and if the password meets the required criteria.
      * It should throw an exception if validation fails.
      * at least 8 characters long, contains at least one letter and one number.
-     *
-     * @param vo The EmailRegisterVO containing the registration details.
      */
     private fun isPasswordValid(password: String): Boolean {
         val regex = """^(?=.*[A-Za-z])(?=.*\d).{8,}$""".toRegex()

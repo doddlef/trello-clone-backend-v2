@@ -35,7 +35,7 @@ class AuthController(
     private val cookieService: CookieService,
     private val refreshService: RefreshService,
 ) {
-    private val log = LoggerFactory.getLogger(org.kevin.trello_v2.auth.controller.AuthController::class.java)
+    private val log = LoggerFactory.getLogger(AuthController::class.java)
 
     @PostMapping
     fun emailPasswordLogin(@RequestBody request: EmailAuthRequest): ResponseEntity<ApiResponse> {

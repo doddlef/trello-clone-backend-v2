@@ -25,6 +25,7 @@ class AuthAdvice {
 
     @ExceptionHandler(RefreshTokenExpiredException::class)
     fun handleRefreshTokenExpiredException(e: RefreshTokenExpiredException): ResponseEntity<ApiResponse> {
+        log.debug("Refresh token expired {}", e.message)
         val response = ApiResponse.Builder(ResponseCode.TOKEN_EXPIRED)
             .message("refresh token has expired")
             .build()
