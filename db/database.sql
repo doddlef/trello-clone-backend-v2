@@ -1,20 +1,29 @@
+-- Database schema for the application
+create type account_role as enum ('ADMIN', 'USER');
+
+CREATE TYPE account_status AS ENUM (
+    'ACTIVE',
+    'LOCKED',
+    'ARCHIVED'
+);
+
 -- account (user) table
 create table accounts
 (
-    uid        text                                      not null
+    uid        text                                            not null
         constraint accounts_pk
             primary key,
-    email      text                                      not null
+    email      text                                            not null
         constraint accounts_pk_2_email
             unique,
     password   text,
-    name       text                                      not null,
+    nickname   text                                            not null,
     avatar     text,
-    verified   boolean      default false                not null,
-    role       account_role default 'USER'::account_role not null,
-    created_at timestamp    default CURRENT_TIMESTAMP    not null,
-    updated_at timestamp    default CURRENT_TIMESTAMP    not null,
-    archived   boolean      default false                not null
+    verified   boolean        default false                    not null,
+    role       account_role   default 'USER'::account_role     not null,
+    created_at timestamp      default CURRENT_TIMESTAMP        not null,
+    updated_at timestamp      default CURRENT_TIMESTAMP        not null,
+    status     account_status default 'ACTIVE'::account_status not null
 );
 
 comment on table accounts is 'the user of the application';
@@ -26,8 +35,6 @@ comment on column accounts.avatar is 'avatar url of the user';
 comment on column accounts.verified is 'true if the email has been verified';
 
 comment on column accounts.role is 'the role of the user in the application';
-
-comment on column accounts.archived is 'true if this account has been archived';
 
 alter table accounts
     owner to root;

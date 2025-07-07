@@ -5,31 +5,58 @@
 
 <mapper namespace="org.kevin.trello_v2.account.mapper.AccountMapper">
     <sql id="AccountColumns">
-        uid, email, password, name, avatar, verified, role, created_at, updated_at, archived
+        uid, email, password, nickname, avatar, verified, role, created_at, updated_at, status
     </sql>
 
     <resultMap id="AccountResultMap" type="org.kevin.trello_v2.account.model.Account">
         <id property="uid" column="uid"/>
         <result property="email" column="email"/>
         <result property="password" column="password"/>
-        <result property="name" column="name"/>
+        <result property="nickname" column="nickname"/>
         <result property="avatar" column="avatar"/>
         <result property="verified" column="verified"/>
         <result property="role"
                 column="role"
-                typeHandler="org.kevin.trello_v2.account.mapper.typeHandler.AccountRoleTypeHandler"
+                typeHandler="org.kevin.trello_v2.account.mapper.AccountRoleTypeHandler"
         />
         <result property="createdAt" column="created_at"/>
         <result property="updatedAt" column="updated_at"/>
-        <result property="archived" column="archived"/>
+        <result property="status" column="status"/>
     </resultMap>
 
-    <insert id="insertAccount" parameterType="org.kevin.trello_v2.account.mapper.query.AccountInsertQuery">
+    <select id="findByEmail" parameterType="string" resultMap="AccountResultMap">
+        SELECT <include refid="AccountColumns"/>
+        FROM accounts
+        WHERE email = #{email}
+        AND status != 'ARCHIVED'
+    </select>
+
+    <select id="findByUid" parameterType="string" resultMap="AccountResultMap">
+        SELECT <include refid="AccountColumns"/>
+        FROM accounts
+        WHERE uid = #{uid}
+        AND status != 'ARCHIVED'
+    </select>
+
+    <insert id="insertAccount" parameterType="org.kevin.trello_v2.account.mapper.AccountInsertQuery">
         INSERT INTO accounts (
             <include refid="AccountColumns"/>
         ) VALUES (
-            #{uid}, #{email}, #{password}, #{name}, #{avatar}, #{verified}, #{role}, DEFAULT, DEFAULT, DEFAULT
+            #{uid}, #{email}, #{password}, #{nickname}, #{avatar}, #{verified}, #{role}, DEFAULT, DEFAULT, DEFAULT
         )
     </insert>
 
+    <update id="updateAccount" parameterType="org.kevin.trello_v2.account.mapper.AccountUpdateQuery">
+        UPDATE accounts
+        <set>
+            <if test="email != null">email = #{email},</if>
+            <if test="password != null">password = #{password},</if>
+            <if test="nickname != null">nickname = #{nickname},</if>
+            <if test="avatar != null">avatar = #{avatar},</if>
+            <if test="verified != null">verified = #{verified},</if>
+            <if test="role != null">role = #{role},</if>
+            <if test="status != null">status = #{status},</if>
+        </set>
+        WHERE uid = #{uid}
+    </update>
 </mapper>

@@ -28,9 +28,9 @@ repositories {
 extra["snippetsDir"] = file("build/generated-snippets")
 
 dependencies {
-//	implementation("org.springframework.boot:spring-boot-starter-cache")
+	implementation("org.springframework.boot:spring-boot-starter-cache")
 	// https://mvnrepository.com/artifact/com.github.ben-manes.caffeine/caffeine
-//	implementation("com.github.ben-manes.caffeine:caffeine:3.2.0")
+	implementation("com.github.ben-manes.caffeine:caffeine:3.2.0")
 //	implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
 //	implementation("org.springframework.boot:spring-boot-starter-mail")
 //	implementation("org.springframework.boot:spring-boot-starter-oauth2-client")

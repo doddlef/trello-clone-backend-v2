@@ -6,13 +6,13 @@ data class Account(
     val uid: String,
     val email: String,
     val password: String?,
-    val name: String,
+    val nickname: String,
     val avatar: String?,
     val verified: Boolean,
     val role: AccountRole,
     val createdAt: Timestamp,
     val updatedAt: Timestamp,
-    val archived: Boolean,
+    val status: AccountStatus,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -28,12 +28,12 @@ data class Account(
     }
 
     override fun toString(): String {
-        return "Account(uid='$uid', email='$email', password=$password, name='$name', verified=$verified, role=$role, archived=$archived)"
+        return "Account(uid='$uid', email='$email', password=$password, nickname='$nickname', verified=$verified, role=$role, status=$status)"
     }
 
     fun toDto() = AccountDto(
         uid = uid,
-        name = name,
+        nickname = nickname,
         avatar = avatar,
         role = role
     )
@@ -41,7 +41,7 @@ data class Account(
 
 data class AccountDto(
     val uid: String,
-    val name: String,
+    val nickname: String,
     val avatar: String? = null,
     val role: AccountRole,
 ) {

@@ -29,7 +29,10 @@ and may using NoSql like MongoDB for storing real-time data, and a Chat channel 
 * including metadata:
   * Created At: the date and time when the user was created
   * Updated At: the date and time when the user was last updated
-  * is Archived: a boolean value indicating whether the user is archived or not
+  * status: the status of the user (Active, Locked, Archived)
+    * Active: the user can login and use the application
+    * Locked: the user cannot login, but can be reactivated
+    * Archived: the user is archived, and cannot login or use the application
 
 user will be able to:
 - [] user can register with email and password
