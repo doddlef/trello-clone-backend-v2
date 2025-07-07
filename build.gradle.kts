@@ -32,7 +32,7 @@ dependencies {
 	// https://mvnrepository.com/artifact/com.github.ben-manes.caffeine/caffeine
 	implementation("com.github.ben-manes.caffeine:caffeine:3.2.0")
 //	implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
-//	implementation("org.springframework.boot:spring-boot-starter-mail")
+	implementation("org.springframework.boot:spring-boot-starter-mail")
 //	implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.boot:spring-boot-starter-web")

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.kevin.trello_v2.auth.mapper.EmailActiveTokenMapper">
+    <sql id="EmailActiveTokenColumns">
+        content, uid, expired_at
+    </sql>
+
+    <resultMap id="EmailActiveTokenResultMap" type="org.kevin.trello_v2.auth.model.EmailActiveToken">
+        <id property="content" column="content"/>
+        <result property="uid" column="uid"/>
+        <result property="expiredAt" column="expired_at"/>
+    </resultMap>
+
+    <insert id="insertToken" parameterType="org.kevin.trello_v2.auth.model.EmailActiveToken">
+        INSERT INTO email_active_tokens (
+            <include refid="EmailActiveTokenColumns"/>
+        ) VALUES (
+            #{content}, #{uid}, #{expiredAt}
+        )
+    </insert>
+
+    <select id="findByContent" resultMap="EmailActiveTokenResultMap" parameterType="string">
+        SELECT <include refid="EmailActiveTokenColumns"/>
+        FROM email_active_tokens
+        WHERE content = #{content}
+    </select>
+
+    <select id="findByUid" resultMap="EmailActiveTokenResultMap" parameterType="string">
+        SELECT <include refid="EmailActiveTokenColumns"/>
+        FROM email_active_tokens
+        WHERE uid = #{uid}
+    </select>
+
+    <select id="findByEmail" resultMap="EmailActiveTokenResultMap" parameterType="string">
+        SELECT t.<include refid="EmailActiveTokenColumns"/>
+        FROM email_active_tokens t
+        JOIN accounts a ON t.uid = a.uid
+        WHERE a.email = #{email}
+    </select>
+
+    <delete id="deleteByContent" parameterType="string">
+        DELETE FROM email_active_tokens WHERE content = #{content}
+    </delete>
+
+    <delete id="deleteAllExpiredTokens">
+        DELETE FROM email_active_tokens WHERE expired_at &lt; CURRENT_TIMESTAMP
+    </delete>
+</mapper>

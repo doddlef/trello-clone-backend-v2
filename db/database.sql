@@ -52,3 +52,52 @@ create trigger set_updated_at
     before update on accounts
     for each row
 execute function update_updated_at_column();
+
+-- Email active token table
+create table email_active_tokens
+(
+    id         serial
+        constraint email_active_tokens_pk
+            primary key,
+    content    text                                not null
+        constraint email_active_tokens_pk_content
+            unique,
+    uid        text                                not null
+        constraint email_active_tokens_pk_account
+            unique
+        constraint email_active_tokens___fk_account
+            references accounts,
+    expired_at timestamp                           not null,
+    created_at timestamp default CURRENT_TIMESTAMP not null
+);
+
+comment on table email_active_tokens is 'store tokens used verification and active emails';
+
+comment on column email_active_tokens.uid is 'the uid of account that related to this token';
+
+alter table email_active_tokens
+    owner to root;
+
+create index email_active_tokens_content_index
+    on email_active_tokens (content);
+
+-- Refresh token table
+create table refresh_tokens
+(
+    id         serial
+        constraint refresh_tokens_pk
+            primary key,
+    content    text                                not null
+        constraint refresh_tokens_pk_content
+            unique,
+    uid        text                                not null
+        constraint refresh_tokens___fk_account
+            references accounts,
+    expired_at timestamp                           not null,
+    created_at timestamp default CURRENT_TIMESTAMP not null
+);
+
+comment on table refresh_tokens is 'stores token used to refresh access token';
+
+alter table refresh_tokens
+    owner to root;

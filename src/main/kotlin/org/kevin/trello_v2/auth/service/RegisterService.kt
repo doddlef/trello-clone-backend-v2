@@ -16,10 +16,10 @@ interface RegisterService {
      * Verifies the user's email address using the provided token.
      * If the token is valid, the user's account will be activated.
      *
-     * @param token The verification token sent to the user's email.
+     * @param content The content of verification token sent to the user's email.
      * @return the account if the verification is successful.
      */
-    fun verificationEmail(token: String): Account
+    fun verificationEmail(content: String): Account
 
     /**
      * Resends the verification email to the user.
