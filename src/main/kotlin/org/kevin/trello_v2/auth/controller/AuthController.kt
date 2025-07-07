@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import kotlin.toString
 
 @RestController
 @RequestMapping("/api/auth")
@@ -54,7 +53,7 @@ class AuthController(
         return registerService.emailRegister(EmailRegisterVo(email, password, nickname))
     }
 
-    @PutMapping("/active")
+    @PutMapping("/active-email")
     fun activeEmail(@RequestBody request: EmailActiveRequest): ResponseEntity<ApiResponse> {
         val account = registerService.verificationEmail(request.token)
         return generateAuthedResponse(account)

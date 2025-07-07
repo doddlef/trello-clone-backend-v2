@@ -1,8 +1,6 @@
 package org.kevin.trello_v2.account.mapper
 
 import org.apache.ibatis.annotations.Mapper
-import org.kevin.trello_v2.account.mapper.AccountInsertQuery
-import org.kevin.trello_v2.account.mapper.AccountUpdateQuery
 import org.kevin.trello_v2.account.model.Account
 
 @Mapper

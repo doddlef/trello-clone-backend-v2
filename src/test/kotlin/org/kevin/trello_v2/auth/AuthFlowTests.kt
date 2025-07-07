@@ -27,7 +27,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 @AutoConfigureRestDocs
 @ExtendWith(RestDocumentationExtension::class)
 @Transactional
-class AuthTests @Autowired constructor(
+class AuthFlowTests @Autowired constructor(
     private val mockMvc: MockMvc,
     val authProperties: AuthProperties,
     val accountMapper: AccountMapper,
@@ -40,7 +40,7 @@ class AuthTests @Autowired constructor(
         val nickname = "${RandomString(4).nextString()}-user"
         val password = "Password123!"
 
-        val uid = AccountInsertQuery(
+        AccountInsertQuery(
             email = email,
             nickname = nickname,
             password = passwordEncoder.encode(password),
@@ -48,7 +48,6 @@ class AuthTests @Autowired constructor(
         ).let {
             val count = accountMapper.insertAccount(it)
             assert(count == 1) { "Expected to insert one account, but inserted $count" }
-            it.uid
         }
 
         // Auth

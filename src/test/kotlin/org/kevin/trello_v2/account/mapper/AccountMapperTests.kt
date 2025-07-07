@@ -1,7 +1,6 @@
 package org.kevin.trello_v2.account.mapper
 
 import org.junit.jupiter.api.Test
-import org.kevin.trello_v2.account.mapper.AccountInsertQuery
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.transaction.annotation.Transactional

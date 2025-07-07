@@ -35,10 +35,9 @@
     </select>
 
     <select id="findByEmail" resultMap="EmailActiveTokenResultMap" parameterType="string">
-        SELECT t.<include refid="EmailActiveTokenColumns"/>
-        FROM email_active_tokens t
-        JOIN accounts a ON t.uid = a.uid
-        WHERE a.email = #{email}
+        SELECT <include refid="EmailActiveTokenColumns"/>
+        FROM email_active_tokens
+        WHERE uid = (SELECT uid FROM accounts WHERE email = #{email} LIMIT 1)
     </select>
 
     <delete id="deleteByContent" parameterType="string">

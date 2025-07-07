@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
-@RestControllerAdvice(basePackages = ["org.kevin.trello"])
+@RestControllerAdvice(basePackages = ["org.kevin.trello_v2"])
 class CoreAdvice {
     private val log = LoggerFactory.getLogger(this.javaClass)
 

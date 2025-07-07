@@ -126,7 +126,7 @@ class RegisterServiceImpl(
 
         return ApiResponse.success()
             .message("Registration successful, please check your email to activate your account.")
-            .add("accountUid" to uid)
+            .add("uid" to uid)
             .build()
     }
 
@@ -172,7 +172,7 @@ class RegisterServiceImpl(
         activeAccount(uid)
         emailActiveTokenMapper.deleteByContent(content)
 
-        return accountMapper.findByEmail(uid)?.let {
+        return accountMapper.findByUid(uid)?.let {
             accountCacheRepo.save(it)
             it
         } ?: throw TrelloException("Failed to find active account for uid: $uid")

@@ -21,7 +21,7 @@ class AccountCacheRepoImpl(
     override fun evict(uid: String) {
     }
 
-    @CachePut("accounts", key = "#{account.uid}")
+    @CachePut("accounts", key = "#account.uid")
     override fun save(account: Account): Account {
         return account
     }
