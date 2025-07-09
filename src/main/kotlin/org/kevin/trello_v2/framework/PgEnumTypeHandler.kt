@@ -32,7 +32,7 @@ open class PgEnumTypeHandler<T : Enum<T>>(
         throw UnsupportedOperationException()
     }
 
-    private fun toEnum(name: String?): T? {
+    open fun toEnum(name: String?): T? {
         return if (name == null) null else java.lang.Enum.valueOf(enumType, name)
     }
 }

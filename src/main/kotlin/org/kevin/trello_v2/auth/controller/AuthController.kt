@@ -59,7 +59,7 @@ class AuthController(
         return generateAuthedResponse(account)
     }
 
-    @GetMapping("/resend-token")
+    @GetMapping("/resend-email-token")
     fun resendToken(@RequestParam("email") email: String): ApiResponse {
         return registerService.resendVerificationEmail(email)
     }

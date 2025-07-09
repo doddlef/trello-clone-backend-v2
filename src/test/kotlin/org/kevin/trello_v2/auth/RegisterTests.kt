@@ -16,6 +16,7 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document
 import org.springframework.restdocs.payload.PayloadDocumentation.*
 import org.springframework.restdocs.cookies.CookieDocumentation.*
+import org.springframework.restdocs.request.RequestDocumentation.*
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 import kotlin.test.assertNotNull
@@ -98,6 +99,28 @@ class RegisterTests @Autowired constructor(
                         )
                     )
             }
+
+        // resend email active token
+        mockMvc.perform(
+            get("/api/auth/resend-email-token")
+                .param("email", email)
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.code").value(ResponseCode.SUCCESS.code))
+            .andExpect(jsonPath("$.data").exists())
+            .andDo(
+                document(
+                    "resend-active-email",
+                    queryParameters(
+                        parameterWithName("email").description("Email address to resend the activation token")
+                    ),
+                    responseFields(
+                        fieldWithPath("code").description("Response code, 0 for success"),
+                        fieldWithPath("message").description("Response message, empty for success"),
+                        fieldWithPath("data.uid").description("Unique identifier for the account")
+                    )
+                )
+            )
 
         // Testing only: retrieve the email active token
         val activeToken = emailActiveTokenMapper.findByEmail(email)

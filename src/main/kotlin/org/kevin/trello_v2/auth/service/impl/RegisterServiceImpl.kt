@@ -195,7 +195,7 @@ class RegisterServiceImpl(
 
         return ApiResponse.success()
             .message("Email verification link has been resent, please check your email.")
-            .add("accountUid" to account.uid)
+            .add("uid" to account.uid)
             .build()
     }
 

@@ -38,7 +38,6 @@ and may using NoSql like MongoDB for storing real-time data, and a Chat channel 
 * Board also contains:
   * Title: the name of the board
   * Description (optional): a short description of the board
-  * Background Image (optional): a background image for the board
   * Visibility: the visibility of the board (Public or Private)
     * Public: anyone can see the board, but only members can edit
     * Private: only members can see and edit the board
@@ -59,14 +58,34 @@ and may using NoSql like MongoDB for storing real-time data, and a Chat channel 
     * Member: can view and edit the board
     * Admin: can view, edit, and manage the board (add/remove members, change settings)
     * Viewer: can view the PRIVATE board, but cannot edit
-    * Leave: the user has left the board, and become a viewer only if the board is public
 * members can also have customization on board:
   * is Starred: a boolean value indicating whether the board is starred or not
-  * is Watched: a boolean value indicating whether the board is watched or not
-    * any changes in a watched board will notify the user
 * including metadata:
   * Created At: the date and time when the member was added to the board
   * Updated At: the date and time when the member was last updated
+  * active: a boolean value indicating whether the member is active or not
+    * Active: the member can view and edit the board
+    * Inactive: the member has left the board, just as a regular user
+
+## Business Flow
+
+### Create Board
+- the user must login to create a board
+- send a request, contains title, description (optional) and visibility
+- insert a board and the membership of the user as ADMIN into the database
+
+### Invite Member
+- the user send a request, contains the uid of user, the id of the board, and the role of the user
+- check if the board and membership exists, and role is ADMIN
+- insert a new membership into the database
+
+### Board List
+- the user must login to read the board lists
+- send a request
+- return the lists of the board view
+
+### Read Board content
+-
 
 ### More
 - implement in future
