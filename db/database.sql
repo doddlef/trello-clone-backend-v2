@@ -123,7 +123,7 @@ create table boards
     title       text                                not null,
     description text,
     visibility  board_visibility                    not null,
-    created_at  timestamp                           not null,
+    created_at  timestamp default CURRENT_TIMESTAMP not null,
     updated_at  timestamp default CURRENT_TIMESTAMP not null,
     created_by  text                                not null
         constraint boards___fk_creator

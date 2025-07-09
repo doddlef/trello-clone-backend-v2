@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.kevin.trello_v2.tasks.mapper.BoardMapper">
+    <sql id="BaseColumnList">
+        id, title, description, visibility, created_at, updated_at, created_by, archived
+    </sql>
+
+    <resultMap id="BoardResultMap" type="org.kevin.trello_v2.tasks.model.Board">
+        <id property="id" column="id" />
+        <result property="title" column="title" />
+        <result property="description" column="description" />
+        <result property="visibility"
+                column="visibility"
+                typeHandler="org.kevin.trello_v2.tasks.mapper.typeHandlers.BoardVisibilityTypeHandler"
+        />
+        <result property="createdAt" column="created_at" javaType="java.time.LocalDateTime" />
+        <result property="updatedAt" column="updated_at" javaType="java.time.LocalDateTime" />
+        <result property="createdBy" column="created_by" />
+        <result property="archived" column="archived" />
+    </resultMap>
+
+    <insert id="insert" parameterType="org.kevin.trello_v2.tasks.mapper.queries.BoardInsertQuery">
+        INSERT INTO boards (
+            <include refid="BaseColumnList" />
+        ) VALUES (
+            #{id}, #{title}, #{description}, #{visibility}, DEFAULT, DEFAULT, #{createdBy}, DEFAULT
+        )
+    </insert>
+</mapper>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.kevin.trello_v2.tasks.mapper.BoardMemberMapper">
+    <sql id="boardMemberColumns">
+        board_id, user_uid, role, starred, created_at, updated_at, active
+    </sql>
+
+    <resultMap id="BoardMembershipResultMap" type="org.kevin.trello_v2.tasks.model.BoardMembership">
+        <id property="boardId" column="board_id"/>
+        <id property="userUid" column="user_uid"/>
+        <result property="role"
+                column="role"
+                typeHandler="org.kevin.trello_v2.tasks.mapper.typeHandlers.MembershipRoleTypeHandler"
+        />
+        <result property="starred" column="starred"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="active" column="active"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="org.kevin.trello_v2.tasks.mapper.queries.MembershipInsertQuery">
+        INSERT INTO board_members (
+            <include refid="boardMemberColumns"/>
+        ) VALUES (
+            #{boardId}, #{userUid}, #{role}, #{starred}, DEFAULT, DEFAULT, DEFAULT
+        )
+    </insert>
+</mapper>

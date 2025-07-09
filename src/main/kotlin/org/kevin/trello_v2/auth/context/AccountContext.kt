@@ -15,6 +15,6 @@ object AccountContext {
     }
 
     fun currentAccountOrThrow(): Account {
-        return currentAccount() ?: throw TrelloException("Haven't logged in, please login first")
+        return currentAccount() ?: throw TrelloException("You must be logged in to perform this action.")
     }
 }
