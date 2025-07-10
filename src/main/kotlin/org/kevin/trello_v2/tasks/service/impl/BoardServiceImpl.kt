@@ -17,6 +17,8 @@ import org.kevin.trello_v2.tasks.model.BoardView
 import org.kevin.trello_v2.tasks.model.MembershipDto
 import org.kevin.trello_v2.tasks.model.MembershipRole
 import org.kevin.trello_v2.tasks.repo.TaskPathHelper
+import org.kevin.trello_v2.tasks.service.vo.ArchiveBoardVO
+import org.kevin.trello_v2.tasks.service.vo.CloseBoardVO
 import org.kevin.trello_v2.tasks.service.vo.UpdateBoardVO
 
 @Service
@@ -25,12 +27,12 @@ class BoardServiceImpl(
     private val boardMemberMapper: BoardMemberMapper,
     private val taskPathHelper: TaskPathHelper,
 ): BoardService {
-    fun validateTitle(title: String) {
+    private fun validateTitle(title: String) {
         if (title.isBlank()) throw BadArgumentException("Title cannot be blank")
         if (title.length > MAX_BOARD_TITLE_LENGTH) throw BadArgumentException("Title cannot exceed $MAX_BOARD_TITLE_LENGTH characters")
     }
 
-    fun validateDescription(description: String) {
+    private fun validateDescription(description: String) {
         if (description.isBlank()) throw BadArgumentException("Description cannot be blank")
         if (description.length > MAX_BOARD_DESCRIPTION_LENGTH) throw BadArgumentException("Description exceeds maximum length of $MAX_BOARD_DESCRIPTION_LENGTH characters")
     }
@@ -49,7 +51,7 @@ class BoardServiceImpl(
         ).let {
             val count = boardMapper.insert(it)
             if (count != 1) throw TrelloException("Failed to create board in database")
-            BoardDto(id = it.id, title = it.title, description = it.description)
+            BoardDto(id = it.id, title = it.title, description = it.description, closed = false)
         }
 
         // ("create board member in database")
@@ -79,11 +81,7 @@ class BoardServiceImpl(
         vo.description?.let { validateDescription(it) }
 
         // validate user permission
-        taskPathHelper.pathOfBoard(vo.user.uid, vo.boardId).board?.let {
-            if (it.role != MembershipRole.ADMIN) {
-                throw BadArgumentException("User does not have permission to update this board")
-            }
-        } ?: throw BadArgumentException("board not exist")
+        validateBoardModification(vo.user.uid, vo.boardId)
 
         // update board in database
         BoardUpdateQuery(
@@ -98,5 +96,54 @@ class BoardServiceImpl(
         return ApiResponse.success()
             .message("Board updated successfully")
             .build()
+    }
+
+    override fun closeBoard(vo: CloseBoardVO): ApiResponse {
+        val (boardId, user) = vo
+        validateBoardModification(user.uid, boardId)
+
+        BoardUpdateQuery(
+            id = vo.user.uid,
+            closed = true,
+        ).let {
+            boardMapper.updateById(it).takeUnless { it == 1 }
+                ?: throw TrelloException("Failed to update board")
+        }
+
+        return ApiResponse.success()
+            .message("Board has been closed successfully")
+            .build()
+    }
+
+    override fun archiveBoard(vo: ArchiveBoardVO): ApiResponse {
+        taskPathHelper.pathOfBoard(vo.user.uid, vo.boardId).board?.let {
+            if (it.role != MembershipRole.ADMIN) {
+                throw BadArgumentException("User does not have permission to archive this board")
+            }
+        } ?: throw BadArgumentException("board not exist")
+
+        // update board in database
+        BoardUpdateQuery(
+            id = vo.user.uid,
+            archived = true,
+        ).let {
+            boardMapper.updateById(it).takeUnless { it == 1 }
+                ?: throw TrelloException("Failed to update board")
+        }
+
+        return ApiResponse.success()
+            .message("Board archived successfully")
+            .build()
+    }
+
+    private fun validateBoardModification(userUid: String, boardId: String) {
+        taskPathHelper.pathOfBoard(userUid, boardId).board?.let {
+            if (it.closed) {
+                throw BadArgumentException("This board is read-only")
+            }
+            if (it.role != MembershipRole.ADMIN) {
+                throw BadArgumentException("User does not have permission to modify this board")
+            }
+        } ?: throw BadArgumentException("board not exist")
     }
 }

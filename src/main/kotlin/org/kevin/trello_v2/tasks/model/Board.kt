@@ -6,6 +6,7 @@ data class Board(
     val id: String,
     val title: String,
     val description: String?,
+    val closed: Boolean,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
     val createdBy: String,
@@ -29,6 +30,7 @@ data class Board(
             id = id,
             title = title,
             description = description,
+            closed = closed,
         )
     }
 }
@@ -37,4 +39,5 @@ data class BoardDto(
     val id: String,
     val title: String,
     val description: String?,
+    val closed: Boolean,
 )

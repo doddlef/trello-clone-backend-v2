@@ -38,6 +38,8 @@ and may using NoSql like MongoDB for storing real-time data, and a Chat channel 
 * Board also contains:
   * Title: the name of the board
   * Description (optional): a short description of the board
+  * closed: a boolean value indicating whether the board is closed or not
+    * closed board can only be viewed, but not edited, but admin can reopen it
   * Members: users who are members of the board
   * Labels: labels that can be used in the board
   * Lists: lists that are part of the board

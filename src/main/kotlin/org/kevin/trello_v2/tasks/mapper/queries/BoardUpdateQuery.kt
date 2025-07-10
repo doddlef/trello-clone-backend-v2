@@ -4,5 +4,6 @@ data class BoardUpdateQuery(
     val id: String,
     val title: String? = null,
     val description: String? = null,
+    val closed: Boolean? = null,
     val archived: Boolean? = null,
 )

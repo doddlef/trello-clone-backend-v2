@@ -7,6 +7,7 @@ data class BoardView(
     val boardId: String,
     val title: String,
     val description: String?,
+    val closed: Boolean,
     val userUid: String,
     val role: MembershipRole,
     val starred: Boolean,
@@ -16,6 +17,7 @@ data class BoardView(
         userUid = membership.userUid,
         title = board.title,
         description = board.description,
+        closed = board.closed,
         role = membership.role,
         starred = membership.starred
     )

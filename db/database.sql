@@ -117,6 +117,7 @@ create table boards
             primary key,
     title       text                                not null,
     description text,
+    closed      boolean   default false             not null,
     created_at  timestamp default CURRENT_TIMESTAMP not null,
     updated_at  timestamp default CURRENT_TIMESTAMP not null,
     created_by  text                                not null
@@ -160,10 +161,11 @@ create trigger set_updated_at
 execute function update_updated_at_column();
 
 -- board views table
-create view board_views(board_id, title, description, user_uid, role, starred) as
+create view board_views(board_id, title, description, closed, user_uid, role, starred) as
 SELECT b.id AS board_id,
        b.title,
        b.description,
+       b.closed,
        m.user_uid,
        m.role,
        m.starred

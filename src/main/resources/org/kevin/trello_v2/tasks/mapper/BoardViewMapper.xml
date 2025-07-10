@@ -5,7 +5,7 @@
 
 <mapper namespace="org.kevin.trello_v2.tasks.mapper.BoardViewMapper">
     <sql id="boardViewColumns">
-        board_id, title, description, user_uid, role, starred
+        board_id, title, description, closed, user_uid, role, starred
     </sql>
 
     <resultMap id="BoardViewResultMap" type="org.kevin.trello_v2.tasks.model.BoardView">
@@ -13,6 +13,7 @@
         <id property="userUid" column="user_uid"/>
         <result property="title" column="title"/>
         <result property="description" column="description"/>
+        <result property="closed" column="closed"/>
         <result property="role"
                 column="role"
                 typeHandler="org.kevin.trello_v2.tasks.mapper.typeHandlers.MembershipRoleTypeHandler"

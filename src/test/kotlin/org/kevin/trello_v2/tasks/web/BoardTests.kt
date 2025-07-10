@@ -116,6 +116,7 @@ class BoardTests @Autowired constructor(
                                 fieldWithPath("data.board.boardId").description("ID of the created board"),
                                 fieldWithPath("data.board.title").description("Title of the created board"),
                                 fieldWithPath("data.board.description").type(String).optional().description("Description of the created board"),
+                                fieldWithPath("data.board.closed").description("Whether the board is closed"),
                                 fieldWithPath("data.board.userUid").description("User ID of the board creator"),
                                 fieldWithPath("data.board.role").description("Role of the user in the board"),
                                 fieldWithPath("data.board.starred").description("Whether the board is starred by the user")
