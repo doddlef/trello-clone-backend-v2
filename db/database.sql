@@ -168,7 +168,8 @@ SELECT b.id AS board_id,
        m.role,
        m.starred
 FROM boards b
-         JOIN board_members m ON b.id = m.board_id;
+         JOIN board_members m ON b.id = m.board_id
+WHERE m.active = true;
 
 alter table board_views
     owner to root;

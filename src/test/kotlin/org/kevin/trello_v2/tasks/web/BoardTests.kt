@@ -1,5 +1,6 @@
 package org.kevin.trello_v2.tasks.web
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.servlet.http.Cookie
 import net.bytebuddy.utility.RandomString
 import org.junit.jupiter.api.BeforeEach
@@ -19,6 +20,7 @@ import org.springframework.restdocs.RestDocumentationExtension
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document
 import org.springframework.restdocs.payload.PayloadDocumentation.*
+import org.springframework.restdocs.request.RequestDocumentation.*
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
@@ -120,6 +122,72 @@ class BoardTests @Autowired constructor(
                             )
                         )
                 )
+            }
+    }
+
+    @Test
+    fun `update board`() {
+        val boardId = """
+            {
+                "title": "Test Board",
+                "description": "This is a test board"
+            }
+        """.trimIndent()
+            .let {
+                return@let mockMvc.perform(
+                    post("/api/v1/board")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(it)
+                        .cookie(accessCookie, refreshCookie)
+                )
+                    .andExpect(status().isOk)
+                    .andExpect(jsonPath("$.code").value(ResponseCode.SUCCESS.code))
+                    .andExpect(jsonPath("$.data.board").exists())
+                    .andReturn()
+                    .response
+                    .contentAsString
+                    .let {
+                        return@let ObjectMapper().readTree(it)
+                            .path("data")
+                            .path("board")
+                            .path("boardId")
+                            .asText()
+                    }
+            }
+
+        val newTitle = "New Title"
+        val newDescription = "New Description"
+        """
+            {
+                "title": "$newTitle",
+                "description": "$newDescription"
+            }
+        """.trimIndent()
+            .let {
+                mockMvc.perform(
+                    put("/api/v1/board/{boardId}", boardId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(it)
+                        .cookie(accessCookie, refreshCookie)
+                )
+                    .andExpect(status().isOk)
+                    .andExpect(jsonPath("$.code").value(ResponseCode.SUCCESS.code))
+                    .andDo(
+                        document(
+                            "update-board",
+                            pathParameters(
+                                parameterWithName("boardId").description("ID of the board to update")
+                            ),
+                            requestFields(
+                                fieldWithPath("title").optional().description("New title of the board"),
+                                fieldWithPath("description").optional().description("New description of the board")
+                            ),
+                            responseFields(
+                                fieldWithPath("code").description("Response code"),
+                                fieldWithPath("message").description("Response message"),
+                            )
+                        )
+                    )
             }
     }
 }

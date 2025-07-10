@@ -4,3 +4,8 @@ data class CreateBoardRequest(
     val title: String,
     val description: String?
 )
+
+data class UpdateBoardRequest(
+    val title: String?,
+    val description: String?,
+)
