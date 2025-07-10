@@ -38,9 +38,6 @@ and may using NoSql like MongoDB for storing real-time data, and a Chat channel 
 * Board also contains:
   * Title: the name of the board
   * Description (optional): a short description of the board
-  * Visibility: the visibility of the board (Public or Private)
-    * Public: anyone can see the board, but only members can edit
-    * Private: only members can see and edit the board
   * Members: users who are members of the board
   * Labels: labels that can be used in the board
   * Lists: lists that are part of the board

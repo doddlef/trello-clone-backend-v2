@@ -88,8 +88,7 @@ class BoardTests @Autowired constructor(
         """
             {
                 "title": "Test Board",
-                "description": "This is a test board",
-                "visibility": "PRIVATE"
+                "description": "This is a test board"
             }
         """.trimIndent()
             .let {
@@ -101,19 +100,23 @@ class BoardTests @Autowired constructor(
                 )
                     .andExpect(status().isOk)
                     .andExpect(jsonPath("$.code").value(ResponseCode.SUCCESS.code))
-                    .andExpect(jsonPath("$.data.boardId").exists())
+                    .andExpect(jsonPath("$.data.board").exists())
                     .andDo(
                         document(
                             "create-board",
                             requestFields(
                                 fieldWithPath("title").description("Title of the board"),
                                 fieldWithPath("description").optional().description("Description of the board"),
-                                fieldWithPath("visibility").description("Visibility of the board (PUBLIC or PRIVATE)")
                             ),
                             responseFields(
                                 fieldWithPath("code").description("Response code"),
                                 fieldWithPath("message").description("Response message"),
-                                fieldWithPath("data.boardId").description("ID of the created board")
+                                fieldWithPath("data.board.boardId").description("ID of the created board"),
+                                fieldWithPath("data.board.title").description("Title of the created board"),
+                                fieldWithPath("data.board.description").type(String).optional().description("Description of the created board"),
+                                fieldWithPath("data.board.userUid").description("User ID of the board creator"),
+                                fieldWithPath("data.board.role").description("Role of the user in the board"),
+                                fieldWithPath("data.board.starred").description("Whether the board is starred by the user")
                             )
                         )
                 )

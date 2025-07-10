@@ -5,17 +5,13 @@
 
 <mapper namespace="org.kevin.trello_v2.tasks.mapper.BoardMapper">
     <sql id="BaseColumnList">
-        id, title, description, visibility, created_at, updated_at, created_by, archived
+        id, title, description, created_at, updated_at, created_by, archived
     </sql>
 
     <resultMap id="BoardResultMap" type="org.kevin.trello_v2.tasks.model.Board">
         <id property="id" column="id" />
         <result property="title" column="title" />
         <result property="description" column="description" />
-        <result property="visibility"
-                column="visibility"
-                typeHandler="org.kevin.trello_v2.tasks.mapper.typeHandlers.BoardVisibilityTypeHandler"
-        />
         <result property="createdAt" column="created_at" javaType="java.time.LocalDateTime" />
         <result property="updatedAt" column="updated_at" javaType="java.time.LocalDateTime" />
         <result property="createdBy" column="created_by" />
@@ -26,7 +22,7 @@
         INSERT INTO boards (
             <include refid="BaseColumnList" />
         ) VALUES (
-            #{id}, #{title}, #{description}, #{visibility}, DEFAULT, DEFAULT, #{createdBy}, DEFAULT
+            #{id}, #{title}, #{description}, DEFAULT, DEFAULT, #{createdBy}, DEFAULT
         )
     </insert>
 </mapper>

@@ -2,7 +2,6 @@ package org.kevin.trello_v2.config
 
 import org.kevin.trello_v2.account.mapper.AccountRoleTypeHandler
 import org.kevin.trello_v2.account.mapper.AccountStatusTypeHandler
-import org.kevin.trello_v2.tasks.mapper.typeHandlers.BoardVisibilityTypeHandler
 import org.kevin.trello_v2.tasks.mapper.typeHandlers.MembershipRoleTypeHandler
 import org.mybatis.spring.SqlSessionFactoryBean
 import org.springframework.context.annotation.Bean
@@ -20,8 +19,7 @@ class SqlConfig {
         sqlSessionFactoryBean.setDataSource(dataSource)
         sqlSessionFactoryBean.setConfigLocation(ClassPathResource("mybatis-config.xml"))
         sqlSessionFactoryBean.addTypeHandlers(
-            AccountRoleTypeHandler(), AccountStatusTypeHandler(),
-            BoardVisibilityTypeHandler(), MembershipRoleTypeHandler(),
+            AccountRoleTypeHandler(), AccountStatusTypeHandler(), MembershipRoleTypeHandler(),
         )
         return sqlSessionFactoryBean
     }

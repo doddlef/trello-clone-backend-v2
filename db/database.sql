@@ -102,12 +102,7 @@ comment on table refresh_tokens is 'stores token used to refresh access token';
 alter table refresh_tokens
     owner to root;
 
--- board visibility and membership role types
-CREATE TYPE board_visibility AS ENUM (
-    'PUBLIC',
-    'PRIVATE'
-    );
-
+-- membership role types
 CREATE TYPE membership_role AS ENUM (
     'ADMIN',
     'MEMBER'
@@ -122,7 +117,6 @@ create table boards
             primary key,
     title       text                                not null,
     description text,
-    visibility  board_visibility                    not null,
     created_at  timestamp default CURRENT_TIMESTAMP not null,
     updated_at  timestamp default CURRENT_TIMESTAMP not null,
     created_by  text                                not null
@@ -164,3 +158,17 @@ create trigger set_updated_at
     before update on board_members
     for each row
 execute function update_updated_at_column();
+
+-- board views table
+create view board_views(board_id, title, description, user_uid, role, starred) as
+SELECT b.id AS board_id,
+       b.title,
+       b.description,
+       m.user_uid,
+       m.role,
+       m.starred
+FROM boards b
+         JOIN board_members m ON b.id = m.board_id;
+
+alter table board_views
+    owner to root;

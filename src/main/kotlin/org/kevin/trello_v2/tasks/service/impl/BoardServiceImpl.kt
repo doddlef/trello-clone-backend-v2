@@ -11,6 +11,9 @@ import org.kevin.trello_v2.tasks.mapper.BoardMapper
 import org.kevin.trello_v2.tasks.mapper.BoardMemberMapper
 import org.kevin.trello_v2.tasks.mapper.queries.BoardInsertQuery
 import org.kevin.trello_v2.tasks.mapper.queries.MembershipInsertQuery
+import org.kevin.trello_v2.tasks.model.BoardDto
+import org.kevin.trello_v2.tasks.model.BoardView
+import org.kevin.trello_v2.tasks.model.MembershipDto
 import org.kevin.trello_v2.tasks.model.MembershipRole
 
 @Service
@@ -34,33 +37,33 @@ class BoardServiceImpl(
         // ("validate vo")
         validateCreateBoardVO(vo)
 
-        val (title, description, visibility, user) = vo
+        val (title, description, user) = vo
         // ("create board in database")
-        val boardId = BoardInsertQuery(
+        val board = BoardInsertQuery(
             title = title,
             description = description,
-            visibility = visibility,
             createdBy = user.uid
         ).let {
             val count = boardMapper.insert(it)
             if (count != 1) throw TrelloException("Failed to create board in database")
-            it.id
+            BoardDto(id = it.id, title = it.title, description = it.description)
         }
 
         // ("create board member in database")
         val membership = MembershipInsertQuery(
-            boardId = boardId,
+            boardId = board.id,
             userUid = user.uid,
             role = MembershipRole.ADMIN,
             starred = false,
         ).let {
             val count = boardMemberMapper.insert(it)
             if (count != 1) throw TrelloException("Failed to create board member in database")
+            MembershipDto(boardId = it.boardId, userUid = it.userUid, role = it.role, starred = it.starred)
         }
 
         return ApiResponse.success()
             .message("Board created successfully")
-            .add("boardId" to boardId)
+            .add("board" to BoardView(board, membership))
             .build()
     }
 }
