@@ -32,4 +32,14 @@
         LIMIT 1
     </select>
 
+    <select id="search" resultMap="BoardViewResultMap">
+        SELECT
+        <include refid="boardViewColumns"/>
+        FROM board_views
+        <where>
+            <if test="userUid != null">
+                user_uid = #{userUid}
+            </if>
+        </where>
+    </select>
 </mapper>

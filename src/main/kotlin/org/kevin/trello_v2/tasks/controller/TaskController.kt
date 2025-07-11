@@ -10,6 +10,7 @@ import org.kevin.trello_v2.tasks.service.vo.CloseBoardVO
 import org.kevin.trello_v2.tasks.service.vo.CreateBoardVO
 import org.kevin.trello_v2.tasks.service.vo.UpdateBoardVO
 import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
@@ -22,6 +23,12 @@ import org.springframework.web.bind.annotation.RestController
 class TaskController(
     private val boardService: BoardService,
 ) {
+    @GetMapping("/board-list")
+    fun boardList(): ApiResponse {
+        val account = AccountContext.currentAccountOrThrow()
+        return boardService.listOfBoard(account)
+    }
+
     @PostMapping("/board")
     fun createBoard(@RequestBody request: CreateBoardRequest): ApiResponse {
         val (title, description) = request

@@ -11,6 +11,7 @@ import org.kevin.trello_v2.account.mapper.AccountMapper
 import org.kevin.trello_v2.account.repo.AccountRepo
 import org.kevin.trello_v2.auth.AuthProperties
 import org.kevin.trello_v2.framework.response.ResponseCode
+import org.kevin.trello_v2.tasks.repo.TaskPathHelper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -21,11 +22,15 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document
 import org.springframework.restdocs.payload.PayloadDocumentation.*
 import org.springframework.restdocs.request.RequestDocumentation.*
+import org.springframework.restdocs.request.RequestDocumentation.pathParameters
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -38,6 +43,7 @@ class BoardTests @Autowired constructor(
     val accountMapper: AccountMapper,
     val passwordEncoder: PasswordEncoder,
     val accountRepo: AccountRepo,
+    val taskPathHelper: TaskPathHelper,
 ) {
     val email = "${RandomString(10)}@example.com"
     val password = "Password123!"
@@ -190,5 +196,158 @@ class BoardTests @Autowired constructor(
                         )
                     )
             }
+    }
+
+    @Test
+    fun `close, archive and list of boards`() {
+        val boardIds = mutableListOf<String>()
+        for (i in 1..3) {
+            """
+                {
+                    "title": "Test Board $i",
+                    "description": "This is a test board $i"
+                }
+            """.trimIndent()
+                .let {
+                    mockMvc.perform(
+                        post("/api/v1/board")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(it)
+                            .cookie(accessCookie, refreshCookie)
+                    )
+                        .andExpect(status().isOk)
+                        .andExpect(jsonPath("$.code").value(ResponseCode.SUCCESS.code))
+                        .andReturn()
+                        .response
+                        .contentAsString
+                        .let {
+                            val boardId = ObjectMapper().readTree(it)
+                                .path("data")
+                                .path("board")
+                                .path("boardId")
+                                .asText()
+                            boardIds.add(boardId)
+                        }
+                }
+        }
+
+        // get the list of boards
+        mockMvc.perform(
+            get("/api/v1/board-list")
+                .cookie(accessCookie, refreshCookie)
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.code").value(ResponseCode.SUCCESS.code))
+            .andExpect(jsonPath("$.data.boards").isArray)
+            .andDo(
+                document(
+                    "list-boards",
+                    responseFields(
+                        fieldWithPath("code").description("Response code"),
+                        fieldWithPath("data.boards[]").description("List of boards"),
+                        fieldWithPath("data.boards[].boardId").description("ID of the board"),
+                        fieldWithPath("data.boards[].title").description("Title of the board"),
+                        fieldWithPath("data.boards[].description").type(String).optional().description("Description of the board"),
+                        fieldWithPath("data.boards[].closed").description("Whether the board is closed"),
+                        fieldWithPath("data.boards[].userUid").description("User ID of the board creator"),
+                        fieldWithPath("data.boards[].role").description("Role of the user in the board"),
+                        fieldWithPath("data.boards[].starred").description("Whether the board is starred by the user")
+                    )
+                )
+            )
+            .andReturn()
+            .response
+            .contentAsString
+            .let {
+                val boards = ObjectMapper()
+                    .readTree(it)
+                    .path("data")
+                    .path("boards")
+                assertEquals(3, boards.size(), "There should be 3 boards in the list")
+            }
+
+        // close the first board
+        mockMvc.perform(
+            delete("/api/v1/board/{id}", boardIds[0])
+                .cookie(accessCookie, refreshCookie)
+        )
+            .andExpect(status().isOk)
+            .andDo(
+                document(
+                    "close-board",
+                    pathParameters(
+                        parameterWithName("id").description("ID of the board to close")
+                    ),
+                    responseFields(
+                        fieldWithPath("code").description("Response code"),
+                        fieldWithPath("message").description("Response message")
+                    )
+                )
+            )
+
+        mockMvc.perform(
+            get("/api/v1/board-list")
+                .cookie(accessCookie, refreshCookie)
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.code").value(ResponseCode.SUCCESS.code))
+            .andExpect(jsonPath("$.data.boards").isArray)
+            .andReturn()
+            .response
+            .contentAsString
+            .let {
+                val boards = ObjectMapper()
+                    .readTree(it)
+                    .path("data")
+                    .path("boards")
+                assertEquals(3, boards.size(), "Still three boards should be listed")
+            }
+
+        taskPathHelper.pathOfBoard(uid, boardIds[0]).let {
+            val board = it.board
+            assertNotNull(board)
+            assertTrue(board.closed)
+        }
+
+        // archive the second board
+        mockMvc.perform(
+            delete("/api/v1/board/{id}/archive", boardIds[0])
+                .cookie(accessCookie, refreshCookie)
+        )
+            .andExpect(status().isOk)
+            .andDo(
+                document(
+                    "archive-board",
+                    pathParameters(
+                        parameterWithName("id").description("ID of the board to archive")
+                    ),
+                    responseFields(
+                        fieldWithPath("code").description("Response code"),
+                        fieldWithPath("message").description("Response message")
+                    )
+                )
+            )
+
+        mockMvc.perform(
+            get("/api/v1/board-list")
+                .cookie(accessCookie, refreshCookie)
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.code").value(ResponseCode.SUCCESS.code))
+            .andExpect(jsonPath("$.data.boards").isArray)
+            .andReturn()
+            .response
+            .contentAsString
+            .let {
+                val boards = ObjectMapper()
+                    .readTree(it)
+                    .path("data")
+                    .path("boards")
+                assertEquals(2, boards.size(), "Only two boards should be listed after archiving one")
+            }
+
+        taskPathHelper.pathOfBoard(uid, boardIds[0]).let {
+            assertNull(it.board)
+        }
     }
 }

@@ -171,7 +171,7 @@ SELECT b.id AS board_id,
        m.starred
 FROM boards b
          JOIN board_members m ON b.id = m.board_id
-WHERE m.active = true;
+WHERE m.active = true AND b.archived = false;
 
 alter table board_views
     owner to root;

@@ -1,5 +1,6 @@
 package org.kevin.trello_v2.tasks.service
 
+import org.kevin.trello_v2.account.model.Account
 import org.kevin.trello_v2.framework.response.ApiResponse
 import org.kevin.trello_v2.tasks.service.vo.ArchiveBoardVO
 import org.kevin.trello_v2.tasks.service.vo.CloseBoardVO
@@ -7,6 +8,13 @@ import org.kevin.trello_v2.tasks.service.vo.CreateBoardVO
 import org.kevin.trello_v2.tasks.service.vo.UpdateBoardVO
 
 interface BoardService {
+    fun listOfBoard(user: Account): ApiResponse
+
+    /**
+     * Creates a board with the given [CreateBoardVO].
+     * If the title is blank or exceeds the maximum length, an exception will be thrown.
+     * If the description is provided, it must not be blank and must not exceed the maximum length.
+     */
     fun createBoard(vo: CreateBoardVO): ApiResponse
 
     /**

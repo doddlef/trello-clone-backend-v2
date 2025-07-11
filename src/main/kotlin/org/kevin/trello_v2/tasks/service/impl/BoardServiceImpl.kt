@@ -1,5 +1,6 @@
 package org.kevin.trello_v2.tasks.service.impl
 
+import org.kevin.trello_v2.account.model.Account
 import org.kevin.trello_v2.framework.BadArgumentException
 import org.kevin.trello_v2.framework.TrelloException
 import org.kevin.trello_v2.framework.response.ApiResponse
@@ -9,9 +10,11 @@ import org.springframework.stereotype.Service
 import org.kevin.trello_v2.tasks.constants.*
 import org.kevin.trello_v2.tasks.mapper.BoardMapper
 import org.kevin.trello_v2.tasks.mapper.BoardMemberMapper
+import org.kevin.trello_v2.tasks.mapper.BoardViewMapper
 import org.kevin.trello_v2.tasks.mapper.queries.BoardInsertQuery
 import org.kevin.trello_v2.tasks.mapper.queries.BoardUpdateQuery
 import org.kevin.trello_v2.tasks.mapper.queries.MembershipInsertQuery
+import org.kevin.trello_v2.tasks.mapper.queries.ViewSearchQuery
 import org.kevin.trello_v2.tasks.model.BoardDto
 import org.kevin.trello_v2.tasks.model.BoardView
 import org.kevin.trello_v2.tasks.model.MembershipDto
@@ -20,11 +23,13 @@ import org.kevin.trello_v2.tasks.repo.TaskPathHelper
 import org.kevin.trello_v2.tasks.service.vo.ArchiveBoardVO
 import org.kevin.trello_v2.tasks.service.vo.CloseBoardVO
 import org.kevin.trello_v2.tasks.service.vo.UpdateBoardVO
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class BoardServiceImpl(
     private val boardMapper: BoardMapper,
     private val boardMemberMapper: BoardMemberMapper,
+    private val boardViewMapper: BoardViewMapper,
     private val taskPathHelper: TaskPathHelper,
 ): BoardService {
     private fun validateTitle(title: String) {
@@ -37,6 +42,17 @@ class BoardServiceImpl(
         if (description.length > MAX_BOARD_DESCRIPTION_LENGTH) throw BadArgumentException("Description exceeds maximum length of $MAX_BOARD_DESCRIPTION_LENGTH characters")
     }
 
+    override fun listOfBoard(user: Account): ApiResponse {
+        ViewSearchQuery(userUid = user.uid)
+            .let {
+                val views = boardViewMapper.search(it)
+                return ApiResponse.success()
+                    .add("boards" to views)
+                    .build()
+            }
+    }
+
+    @Transactional
     override fun createBoard(vo: CreateBoardVO): ApiResponse {
         // ("validate vo")
         validateTitle(vo.title)
@@ -72,6 +88,7 @@ class BoardServiceImpl(
             .build()
     }
 
+    @Transactional
     override fun updateBoard(vo: UpdateBoardVO): ApiResponse {
         // ("validate vo")
         if (vo.isAllNull()) {
@@ -98,15 +115,16 @@ class BoardServiceImpl(
             .build()
     }
 
+    @Transactional
     override fun closeBoard(vo: CloseBoardVO): ApiResponse {
         val (boardId, user) = vo
         validateBoardModification(user.uid, boardId)
 
         BoardUpdateQuery(
-            id = vo.user.uid,
+            id = vo.boardId,
             closed = true,
         ).let {
-            boardMapper.updateById(it).takeUnless { it == 1 }
+            boardMapper.updateById(it).takeIf { it == 1 }
                 ?: throw TrelloException("Failed to update board")
         }
 
@@ -115,6 +133,7 @@ class BoardServiceImpl(
             .build()
     }
 
+    @Transactional
     override fun archiveBoard(vo: ArchiveBoardVO): ApiResponse {
         taskPathHelper.pathOfBoard(vo.user.uid, vo.boardId).board?.let {
             if (it.role != MembershipRole.ADMIN) {
@@ -124,10 +143,10 @@ class BoardServiceImpl(
 
         // update board in database
         BoardUpdateQuery(
-            id = vo.user.uid,
+            id = vo.boardId,
             archived = true,
         ).let {
-            boardMapper.updateById(it).takeUnless { it == 1 }
+            boardMapper.updateById(it).takeIf { it == 1 }
                 ?: throw TrelloException("Failed to update board")
         }
 
