@@ -1,13 +1,11 @@
-package org.kevin.trello_v2.tasks.mapper
+package org.kevin.trello_v2.tasks.repo
 
-import org.apache.ibatis.annotations.Mapper
 import org.kevin.trello_v2.tasks.mapper.queries.BoardInsertQuery
 import org.kevin.trello_v2.tasks.mapper.queries.BoardSearchQuery
 import org.kevin.trello_v2.tasks.mapper.queries.BoardUpdateQuery
 import org.kevin.trello_v2.tasks.model.Board
 
-@Mapper
-interface BoardMapper {
+interface BoardRepo {
     fun search(query: BoardSearchQuery): List<Board>
 
     fun findById(id: String): Board?

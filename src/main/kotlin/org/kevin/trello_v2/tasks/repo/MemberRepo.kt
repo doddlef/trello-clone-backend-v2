@@ -1,16 +1,13 @@
-package org.kevin.trello_v2.tasks.mapper
+package org.kevin.trello_v2.tasks.repo
 
-import org.apache.ibatis.annotations.Mapper
-import org.apache.ibatis.annotations.Param
 import org.kevin.trello_v2.tasks.mapper.queries.MembershipInsertQuery
 import org.kevin.trello_v2.tasks.mapper.queries.MembershipSearchQuery
 import org.kevin.trello_v2.tasks.model.BoardMembership
 
-@Mapper
-interface BoardMemberMapper {
+interface MemberRepo {
     fun findByKey(
-        @Param("userUid") userUid: String,
-        @Param("boardId") boardId: String
+        userUid: String,
+        boardId: String
     ): BoardMembership?
     fun search(query: MembershipSearchQuery): List<BoardMembership>
     fun insert(query: MembershipInsertQuery): Int

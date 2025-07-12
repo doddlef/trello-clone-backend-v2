@@ -21,6 +21,25 @@
         <result property="active" column="active"/>
     </resultMap>
 
+    <select id="findByKey" resultMap="BoardMembershipResultMap">
+        SELECT <include refid="boardMemberColumns"/>
+        FROM board_members
+        WHERE board_id = #{boardId} AND user_uid = #{userUid}
+    </select>
+
+    <select id="search" resultMap="BoardMembershipResultMap">
+        SELECT <include refid="boardMemberColumns"/>
+        FROM board_members
+        <where>
+            <if test="userUid != null">
+                user_uid = #{userUid}
+            </if>
+            <if test="isActive != null">
+                AND active = #{isActive}
+            </if>
+        </where>
+    </select>
+
     <insert id="insert" parameterType="org.kevin.trello_v2.tasks.mapper.queries.MembershipInsertQuery">
         INSERT INTO board_members (
             <include refid="boardMemberColumns"/>

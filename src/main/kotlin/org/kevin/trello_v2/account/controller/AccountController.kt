@@ -31,4 +31,12 @@ class AccountController {
             HttpStatus.OK
         )
     }
+
+    @GetMapping("/detail")
+    fun getAccountDetail(): ApiResponse {
+        val account = AccountContext.currentAccountOrThrow()
+        return ApiResponse.success()
+            .add("account" to account)
+            .build()
+    }
 }

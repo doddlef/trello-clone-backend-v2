@@ -7,7 +7,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.kevin.trello_v2.account.mapper.AccountInsertQuery
-import org.kevin.trello_v2.account.mapper.AccountMapper
 import org.kevin.trello_v2.account.repo.AccountRepo
 import org.kevin.trello_v2.auth.AuthProperties
 import org.kevin.trello_v2.framework.response.ResponseCode
@@ -40,7 +39,6 @@ import kotlin.test.assertTrue
 class BoardTests @Autowired constructor(
     private val mockMvc: MockMvc,
     val authProperties: AuthProperties,
-    val accountMapper: AccountMapper,
     val passwordEncoder: PasswordEncoder,
     val accountRepo: AccountRepo,
     val taskPathHelper: TaskPathHelper,
@@ -304,7 +302,7 @@ class BoardTests @Autowired constructor(
             }
 
         taskPathHelper.pathOfBoard(uid, boardIds[0]).let {
-            val board = it.board
+            val board = it.boardView
             assertNotNull(board)
             assertTrue(board.closed)
         }
@@ -347,7 +345,7 @@ class BoardTests @Autowired constructor(
             }
 
         taskPathHelper.pathOfBoard(uid, boardIds[0]).let {
-            assertNull(it.board)
+            assertNull(it.boardView)
         }
     }
 }

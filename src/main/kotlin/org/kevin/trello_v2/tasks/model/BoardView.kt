@@ -41,4 +41,22 @@ data class BoardView(
         result = 31 * result + userUid.hashCode()
         return result
     }
+
+    fun asBoardDto(): BoardDto {
+        return BoardDto(
+            id = boardId,
+            title = title,
+            description = description,
+            closed = closed
+        )
+    }
+
+    fun asMembershipDto(): MembershipDto {
+        return MembershipDto(
+            boardId = boardId,
+            userUid = userUid,
+            role = role,
+            starred = starred
+        )
+    }
 }
