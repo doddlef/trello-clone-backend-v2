@@ -23,7 +23,7 @@ class BoardTests @Autowired constructor(
     val boardMapper: BoardMapper,
     val boardMemberMapper: BoardMemberMapper,
     val passwordEncoder: PasswordEncoder,
-    val boardViewMapper: BoardViewMapper,
+    val boardViewHelper: BoardViewHelper,
 ) {
     val email = "${RandomString(10)}@example.com"
     val password = "Password123!"
@@ -67,7 +67,7 @@ class BoardTests @Autowired constructor(
 
     @Test
     fun name() {
-        val view = boardViewMapper.findByUserAndBoard(uid, "not exist")
+        val view = boardViewHelper.findByUserAndBoard(uid, "not exist")
         assertNull(view)
 
         val boardId = BoardInsertQuery(
@@ -89,7 +89,7 @@ class BoardTests @Autowired constructor(
             assertEquals(1, count, "Membership should be inserted successfully")
         }
 
-        val view1 = boardViewMapper.findByUserAndBoard(uid, boardId)
+        val view1 = boardViewHelper.findByUserAndBoard(uid, boardId)
         assertNotNull(view1)
         assertEquals("title", view1.title)
     }

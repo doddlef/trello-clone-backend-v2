@@ -8,7 +8,7 @@ import org.kevin.trello_v2.tasks.service.BoardService
 import org.kevin.trello_v2.tasks.service.vo.CreateBoardVO
 import org.springframework.stereotype.Service
 import org.kevin.trello_v2.tasks.constants.*
-import org.kevin.trello_v2.tasks.mapper.BoardViewMapper
+import org.kevin.trello_v2.tasks.mapper.BoardViewHelper
 import org.kevin.trello_v2.tasks.mapper.queries.BoardInsertQuery
 import org.kevin.trello_v2.tasks.mapper.queries.BoardUpdateQuery
 import org.kevin.trello_v2.tasks.mapper.queries.MembershipInsertQuery
@@ -29,7 +29,7 @@ import org.springframework.transaction.annotation.Transactional
 class BoardServiceImpl(
     private val boardRepo: BoardRepo,
     private val memberRepo: MemberRepo,
-    private val boardViewMapper: BoardViewMapper,
+    private val viewHelper: BoardViewHelper,
     private val taskPathHelper: TaskPathHelper,
 ): BoardService {
     private fun validateTitle(title: String) {
@@ -42,10 +42,34 @@ class BoardServiceImpl(
         if (description.length > MAX_BOARD_DESCRIPTION_LENGTH) throw BadArgumentException("Description exceeds maximum length of $MAX_BOARD_DESCRIPTION_LENGTH characters")
     }
 
+    // using the cacheable
+//    override fun listOfBoard(user: Account): ApiResponse {
+//        val memberships = MembershipSearchQuery(
+//            userUid = user.uid
+//        ).let { memberRepo.search(it) }
+//            .filter { it.active }
+//
+//        val boards = memberships
+//            .map { it.boardId }
+//            .let { BoardSearchQuery(ids = it) }
+//            .let { boardRepo.search(it) }
+//            .filter { !it.archived }
+//
+//        val views = boards.map { board ->
+//            val membership = memberships.firstOrNull { it.boardId == board.id }
+//                ?: throw TrelloException("Membership not found for board ${board.id}")
+//            BoardView(board, membership)
+//        }
+//
+//        return ApiResponse.success()
+//            .add("boards" to views)
+//            .build()
+//    }
+
     override fun listOfBoard(user: Account): ApiResponse {
         ViewSearchQuery(userUid = user.uid)
             .let {
-                val views = boardViewMapper.search(it)
+                val views = viewHelper.search(it)
                 return ApiResponse.success()
                     .add("boards" to views)
                     .build()
