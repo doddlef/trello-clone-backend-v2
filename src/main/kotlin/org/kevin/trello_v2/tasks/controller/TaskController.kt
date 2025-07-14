@@ -5,6 +5,7 @@ import org.kevin.trello_v2.framework.response.ApiResponse
 import org.kevin.trello_v2.tasks.controller.requests.CreateBoardRequest
 import org.kevin.trello_v2.tasks.controller.requests.InviteMemberRequest
 import org.kevin.trello_v2.tasks.controller.requests.UpdateBoardRequest
+import org.kevin.trello_v2.tasks.controller.requests.UpdateMemberRequest
 import org.kevin.trello_v2.tasks.model.MembershipRole
 import org.kevin.trello_v2.tasks.service.BoardService
 import org.kevin.trello_v2.tasks.service.MemberService
@@ -12,7 +13,9 @@ import org.kevin.trello_v2.tasks.service.vo.ArchiveBoardVO
 import org.kevin.trello_v2.tasks.service.vo.CloseBoardVO
 import org.kevin.trello_v2.tasks.service.vo.CreateBoardVO
 import org.kevin.trello_v2.tasks.service.vo.InviteMemberVO
+import org.kevin.trello_v2.tasks.service.vo.RemoveMemberVO
 import org.kevin.trello_v2.tasks.service.vo.UpdateBoardVO
+import org.kevin.trello_v2.tasks.service.vo.UpdateMemberVO
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -110,5 +113,39 @@ class TaskController(
         }
     }
 
+    @PutMapping("/board/{id}/member/{targetUid}")
+    fun updateMember(
+        @PathVariable("id") id: String,
+        @PathVariable("targetUid") targetUid: String,
+        @RequestBody request: UpdateMemberRequest,
+    ): ApiResponse {
+        val (roleStr) = request
+        val role = MembershipRole.fromString(roleStr)
+        val account = AccountContext.currentAccountOrThrow()
 
+        UpdateMemberVO(
+            targetUid = targetUid,
+            boardId = id,
+            role = role,
+            user = account,
+        ).let {
+            return memberService.updateMember(it)
+        }
+    }
+
+    @DeleteMapping("/board/{id}/member/{targetUid}")
+    fun removeMember(
+        @PathVariable("id") id: String,
+        @PathVariable("targetUid") targetUid: String,
+    ): ApiResponse {
+        val account = AccountContext.currentAccountOrThrow()
+
+        RemoveMemberVO(
+            targetUid = targetUid,
+            boardId = id,
+            user = account,
+        ).let {
+            return memberService.removeMember(it)
+        }
+    }
 }

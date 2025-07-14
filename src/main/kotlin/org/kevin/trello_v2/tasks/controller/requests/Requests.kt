@@ -15,3 +15,7 @@ data class InviteMemberRequest(
     /* ADMIN, MEMBER, VIEWER */
     val role: String = "VIEWER",
 )
+
+data class UpdateMemberRequest(
+    val role: String,
+)

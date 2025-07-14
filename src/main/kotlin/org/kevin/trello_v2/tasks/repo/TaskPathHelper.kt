@@ -4,6 +4,11 @@ import org.kevin.trello_v2.tasks.model.Board
 import org.kevin.trello_v2.tasks.model.BoardMembership
 import org.kevin.trello_v2.tasks.model.BoardView
 
+/**
+ * TaskPathHelper is used to resolve the path of a item
+ *
+ * it only consider not archived items and active memberships
+ */
 interface TaskPathHelper {
     fun pathOfBoard(userUid: String, boardId: String): PathResult
 }

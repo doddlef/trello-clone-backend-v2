@@ -10,6 +10,7 @@ import org.kevin.trello_v2.account.mapper.AccountInsertQuery
 import org.kevin.trello_v2.account.repo.AccountRepo
 import org.kevin.trello_v2.auth.AuthProperties
 import org.kevin.trello_v2.framework.response.ResponseCode
+import org.kevin.trello_v2.tasks.model.MembershipRole
 import org.kevin.trello_v2.tasks.repo.TaskPathHelper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs
@@ -350,7 +351,7 @@ class BoardTests @Autowired constructor(
     }
 
     @Test
-    fun `invite member`() {
+    fun `membership manage`() {
         val guestUid = AccountInsertQuery(
             email = "${RandomString(10)}@example.com",
             password = passwordEncoder.encode(password),
@@ -432,5 +433,75 @@ class BoardTests @Autowired constructor(
             val membership = it.member
             assertNotNull(membership)
         }
+
+        """
+            {                
+                "role": "VIEWER"
+            }
+        """.trimIndent()
+            .let {
+                mockMvc.perform(
+                    put("/api/v1/board/{boardId}/member/{targetUid}", boardId, guestUid)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(it)
+                        .cookie(accessCookie, refreshCookie)
+                )
+                    .andExpect(status().isOk)
+                    .andExpect(jsonPath("$.code").value(ResponseCode.SUCCESS.code))
+                    .andDo(
+                        document(
+                            "update-member-role",
+                            pathParameters(
+                                parameterWithName("boardId").description("ID of the board"),
+                                parameterWithName("targetUid").description("User ID of the member to update")
+                            ),
+                            requestFields(
+                                fieldWithPath("role").description("New role of the member (ADMIN, MEMBER, VIEWER)")
+                            ),
+                            responseFields(
+                                fieldWithPath("code").description("Response code"),
+                                fieldWithPath("message").description("Response message")
+                            )
+                        )
+                )
+            }
+
+        taskPathHelper.pathOfBoard(guestUid, boardId).let {
+            val membership = it.member
+            assertNotNull(membership)
+            assertEquals(MembershipRole.VIEWER, membership.role)
+        }
+
+        mockMvc.perform(
+            delete("/api/v1/board/{boardId}/member/{targetUid}", boardId, guestUid)
+                .cookie(accessCookie, refreshCookie)
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.code").value(ResponseCode.SUCCESS.code))
+            .andDo(
+                document(
+                    "remove-member",
+                    pathParameters(
+                        parameterWithName("boardId").description("ID of the board"),
+                        parameterWithName("targetUid").description("User ID of the member to remove")
+                    ),
+                    responseFields(
+                        fieldWithPath("code").description("Response code"),
+                        fieldWithPath("message").description("Response message")
+                    )
+                )
+            )
+
+        taskPathHelper.pathOfBoard(guestUid, boardId).let {
+            val membership = it.member
+            assertNull(membership)
+        }
+
+        mockMvc.perform(
+            delete("/api/v1/board/{boardId}/member/{targetUid}", boardId, uid)
+                .cookie(accessCookie, refreshCookie)
+        )
+            .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.code").value(ResponseCode.BAD_ARGUMENT.code))
     }
 }
