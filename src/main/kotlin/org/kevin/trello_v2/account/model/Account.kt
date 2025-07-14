@@ -14,6 +14,8 @@ data class Account(
     val updatedAt: Timestamp,
     val status: AccountStatus,
 ) {
+    val archived: Boolean by lazy { status == AccountStatus.ARCHIVED }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

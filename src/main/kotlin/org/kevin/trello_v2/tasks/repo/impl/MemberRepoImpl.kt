@@ -5,6 +5,7 @@ import org.kevin.trello_v2.config.CacheProperties
 import org.kevin.trello_v2.tasks.mapper.BoardMemberMapper
 import org.kevin.trello_v2.tasks.mapper.queries.MembershipInsertQuery
 import org.kevin.trello_v2.tasks.mapper.queries.MembershipSearchQuery
+import org.kevin.trello_v2.tasks.mapper.queries.MembershipUpdateQuery
 import org.kevin.trello_v2.tasks.model.BoardMembership
 import org.kevin.trello_v2.tasks.repo.MemberRepo
 import org.springframework.stereotype.Repository
@@ -34,4 +35,9 @@ class MemberRepoImpl(
 
     override fun insert(query: MembershipInsertQuery): Int =
         memberMapper.insert(query)
+
+    override fun update(query: MembershipUpdateQuery): Int =
+        memberMapper.update(query).also {
+            if (it == 1) cache.invalidate(query.userUid to query.boardId)
+        }
 }

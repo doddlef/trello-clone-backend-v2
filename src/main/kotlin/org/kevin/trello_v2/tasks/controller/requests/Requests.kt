@@ -9,3 +9,9 @@ data class UpdateBoardRequest(
     val title: String?,
     val description: String?,
 )
+
+data class InviteMemberRequest(
+    val guestUid: String,
+    /* ADMIN, MEMBER, VIEWER */
+    val role: String = "VIEWER",
+)

@@ -47,4 +47,22 @@
             #{boardId}, #{userUid}, #{role}, #{starred}, DEFAULT, DEFAULT, DEFAULT
         )
     </insert>
+
+    <update id="update" parameterType="org.kevin.trello_v2.tasks.mapper.queries.MembershipUpdateQuery">
+        UPDATE board_members
+        <set>
+            <if test="role != null">
+                role = #{role},
+            </if>
+            <if test="starred != null">
+                starred = #{starred},
+            </if>
+            <if test="active != null">
+                active = #{active},
+            </if>
+        </set>
+        <where>
+            board_id = #{boardId} AND user_uid = #{userUid}
+        </where>
+    </update>
 </mapper>

@@ -348,4 +348,89 @@ class BoardTests @Autowired constructor(
             assertNull(it.boardView)
         }
     }
+
+    @Test
+    fun `invite member`() {
+        val guestUid = AccountInsertQuery(
+            email = "${RandomString(10)}@example.com",
+            password = passwordEncoder.encode(password),
+            nickname = "test_invite",
+            verified = true,
+        ).let { query ->
+            val count = accountRepo.insertAccount(query)
+            assertEquals(1, count, "Account should be inserted successfully")
+            query.uid
+        }
+
+        val boardId = """
+            {
+                "title": "Test Board",
+                "description": "This is a test board"
+            }
+        """.trimIndent()
+            .let {
+                return@let mockMvc.perform(
+                    post("/api/v1/board")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(it)
+                        .cookie(accessCookie, refreshCookie)
+                )
+                    .andExpect(status().isOk)
+                    .andExpect(jsonPath("$.code").value(ResponseCode.SUCCESS.code))
+                    .andExpect(jsonPath("$.data.board").exists())
+                    .andReturn()
+                    .response
+                    .contentAsString
+                    .let {
+                        return@let ObjectMapper().readTree(it)
+                            .path("data")
+                            .path("board")
+                            .path("boardId")
+                            .asText()
+                    }
+            }
+
+        taskPathHelper.pathOfBoard(guestUid, boardId).let {
+            val membership = it.member
+            assertNull(membership)
+        }
+
+        """
+            {
+                "guestUid": "$guestUid",
+                "role": "MEMBER"
+            }
+        """.trimIndent()
+            .let {
+                mockMvc.perform(
+                    post("/api/v1/board/{id}/invite", boardId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(it)
+                        .cookie(accessCookie, refreshCookie)
+                )
+                    .andExpect(status().isOk)
+                    .andExpect(jsonPath("$.code").value(ResponseCode.SUCCESS.code))
+                    .andDo(
+                        document(
+                            "invite-member",
+                            pathParameters(
+                                parameterWithName("id").description("ID of the board to invite member to")
+                            ),
+                            requestFields(
+                                fieldWithPath("guestUid").description("User ID of the guest to invite"),
+                                fieldWithPath("role").description("Role of the guest in the board (ADMIN, MEMBER, VIEWER)")
+                            ),
+                            responseFields(
+                                fieldWithPath("code").description("Response code"),
+                                fieldWithPath("message").description("Response message")
+                            )
+                        )
+                )
+            }
+
+        taskPathHelper.pathOfBoard(guestUid, boardId).let {
+            val membership = it.member
+            assertNotNull(membership)
+        }
+    }
 }

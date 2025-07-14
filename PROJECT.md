@@ -66,25 +66,32 @@ and may using NoSql like MongoDB for storing real-time data, and a Chat channel 
     * Active: the member can view and edit the board
     * Inactive: the member has left the board, just as a regular user
 
-## Business Flow
+## List
+* list is a collection of cards:
+  * Title: the name of the list
+  * Color (optional): the color of the list
+  * Position: the position of the list in the board
+  * Board: the board that the list belongs to
+  * Cards: cards that are part of the list
+* metadata:
+  * Created At: the date and time when the list was created
+  * Updated At: the date and time when the list was last updated
+  * Created By: the user who created the list
+  * is Archived: a boolean value indicating whether the list is archived or not
 
-### Create Board
-- the user must login to create a board
-- send a request, contains title, description (optional) and visibility
-- insert a board and the membership of the user as ADMIN into the database
-
-### Invite Member
-- the user send a request, contains the uid of user, the id of the board, and the role of the user
-- check if the board and membership exists, and role is ADMIN
-- insert a new membership into the database
-
-### Board List
-- the user must login to read the board lists
-- send a request
-- return the lists of the board view
+## Card
+* card is a task or an item in the list:
+  * Title: the name of the card
+  * Description (optional): a short description of the card
+  * Position: the position of the card in the list
+  * List: the list that the card belongs to
+  * Labels: labels that are attached to the card
+  * Comments: comments that are attached to the card
+  * Attachments: files that are attached to the card
+  * Due Date (optional): a date and time when the card is due
+  * Assigned Users: users who are assigned to the card
 
 ### Read Board content
--
 
 ### More
 - implement in future

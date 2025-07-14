@@ -103,11 +103,7 @@ alter table refresh_tokens
     owner to root;
 
 -- membership role types
-CREATE TYPE membership_role AS ENUM (
-    'ADMIN',
-    'MEMBER'
-        'VIEWER'
-    );
+create type membership_role as enum ('ADMIN', 'MEMBER', 'VIEWER');
 
 -- board table
 create table boards

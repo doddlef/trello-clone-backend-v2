@@ -3,11 +3,15 @@ package org.kevin.trello_v2.tasks.controller
 import org.kevin.trello_v2.auth.context.AccountContext
 import org.kevin.trello_v2.framework.response.ApiResponse
 import org.kevin.trello_v2.tasks.controller.requests.CreateBoardRequest
+import org.kevin.trello_v2.tasks.controller.requests.InviteMemberRequest
 import org.kevin.trello_v2.tasks.controller.requests.UpdateBoardRequest
+import org.kevin.trello_v2.tasks.model.MembershipRole
 import org.kevin.trello_v2.tasks.service.BoardService
+import org.kevin.trello_v2.tasks.service.MemberService
 import org.kevin.trello_v2.tasks.service.vo.ArchiveBoardVO
 import org.kevin.trello_v2.tasks.service.vo.CloseBoardVO
 import org.kevin.trello_v2.tasks.service.vo.CreateBoardVO
+import org.kevin.trello_v2.tasks.service.vo.InviteMemberVO
 import org.kevin.trello_v2.tasks.service.vo.UpdateBoardVO
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -22,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/v1")
 class TaskController(
     private val boardService: BoardService,
+    private val memberService: MemberService,
 ) {
     @GetMapping("/board-list")
     fun boardList(): ApiResponse {
@@ -85,4 +90,25 @@ class TaskController(
             return boardService.archiveBoard(it)
         }
     }
+
+    @PostMapping("/board/{id}/invite")
+    fun inviteMember(
+        @PathVariable("id") id: String,
+        @RequestBody request: InviteMemberRequest,
+    ): ApiResponse {
+        val (guestUid, roleStr) = request
+        val role = MembershipRole.fromString(roleStr)
+        val account = AccountContext.currentAccountOrThrow()
+
+        InviteMemberVO(
+            boardId = id,
+            guestUid = guestUid,
+            role = role,
+            user = account,
+        ).let {
+            return memberService.inviteMember(it)
+        }
+    }
+
+
 }
