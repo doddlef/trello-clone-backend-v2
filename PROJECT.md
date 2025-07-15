@@ -76,7 +76,6 @@ and may using NoSql like MongoDB for storing real-time data, and a Chat channel 
 * metadata:
   * Created At: the date and time when the list was created
   * Updated At: the date and time when the list was last updated
-  * Created By: the user who created the list
   * is Archived: a boolean value indicating whether the list is archived or not
 
 ## Card
@@ -84,12 +83,14 @@ and may using NoSql like MongoDB for storing real-time data, and a Chat channel 
   * Title: the name of the card
   * Description (optional): a short description of the card
   * Position: the position of the card in the list
+  * finished: a boolean value indicating whether the card is finished or not
   * List: the list that the card belongs to
   * Labels: labels that are attached to the card
   * Comments: comments that are attached to the card
   * Attachments: files that are attached to the card
   * Due Date (optional): a date and time when the card is due
   * Assigned Users: users who are assigned to the card
+  * archived: a boolean value indicating whether the card is archived or not
 
 ### Read Board content
 

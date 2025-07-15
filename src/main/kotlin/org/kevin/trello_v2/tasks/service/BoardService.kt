@@ -8,6 +8,8 @@ import org.kevin.trello_v2.tasks.service.vo.CreateBoardVO
 import org.kevin.trello_v2.tasks.service.vo.UpdateBoardVO
 
 interface BoardService {
+    fun boardContent(boardId: String, reader: Account): ApiResponse
+
     fun listOfBoard(user: Account): ApiResponse
 
     /**

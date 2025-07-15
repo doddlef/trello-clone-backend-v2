@@ -7,17 +7,17 @@ import java.io.Serializable
 class ApiResponse private constructor(
     val code: Int,
     val message: String?,
-    val data: Map<String, Any>?
+    val data: Map<String, Any?>?
 ): Serializable {
 
     data class Builder(
         val code: ResponseCode,
     ) {
         var message: String? = null
-        var data: MutableMap<String, Any>? = null
+        var data: MutableMap<String, Any?>? = null
 
         fun message(message: String?) = apply { this.message = message }
-        fun add(data: Pair<String, Any>) = apply {
+        fun add(data: Pair<String, Any?>) = apply {
             if (this.data == null) {
                 this.data = mutableMapOf()
             }

@@ -19,3 +19,7 @@ data class InviteMemberRequest(
 data class UpdateMemberRequest(
     val role: String,
 )
+
+data class CreateListRequest(
+    val title: String,
+)

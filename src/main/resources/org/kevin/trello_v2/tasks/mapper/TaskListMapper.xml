@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.kevin.trello_v2.tasks.mapper.TaskListMapper">
+    <sql id="taskListColumns">
+        id, title, color, position, board_id, created_at, archived
+    </sql>
+
+    <resultMap id="TaskListResultMap" type="org.kevin.trello_v2.tasks.model.TaskList">
+        <id property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="color" column="color"/>
+        <result property="position" column="position"/>
+        <result property="boardId" column="board_id"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="archived" column="archived"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO task_lists (title, color, position, board_id)
+        VALUES (#{title}, #{color}, #{position}, #{boardId})
+    </insert>
+
+    <select id="findById" resultMap="TaskListResultMap">
+        SELECT
+            <include refid="taskListColumns"/>
+        FROM task_lists
+        WHERE id = #{id}
+    </select>
+
+    <select id="search" resultMap="TaskListResultMap">
+        SELECT
+            <include refid="taskListColumns"/>
+        FROM task_lists
+        <where>
+            <if test="boardId != null">
+                board_id = #{boardId}
+            </if>
+            <if test="archived != null">
+                AND archived = #{archived}
+            </if>
+        </where>
+    </select>
+</mapper>

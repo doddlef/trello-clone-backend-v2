@@ -42,6 +42,24 @@ class BoardServiceImpl(
         if (description.length > MAX_BOARD_DESCRIPTION_LENGTH) throw BadArgumentException("Description exceeds maximum length of $MAX_BOARD_DESCRIPTION_LENGTH characters")
     }
 
+    override fun boardContent(
+        boardId: String,
+        reader: Account
+    ): ApiResponse {
+        // validate user membership
+        val membership = (memberRepo.findByKey(reader.uid, boardId)?.takeIf { it.active }
+            ?: throw TrelloException("User ${reader.uid} is not a member of board $boardId"))
+
+        // validate board
+        val board = boardRepo.findById(boardId)?.takeIf { !it.archived }
+            ?: throw TrelloException("Board $boardId does not exist")
+
+        return ApiResponse.success()
+            .add("board" to board.asDto())
+            .add("membership" to membership.asDto())
+            .build()
+    }
+
     // using the cacheable
 //    override fun listOfBoard(user: Account): ApiResponse {
 //        val memberships = MembershipSearchQuery(

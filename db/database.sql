@@ -171,3 +171,24 @@ WHERE m.active = true AND b.archived = false;
 
 alter table board_views
     owner to root;
+
+-- lists table
+-- auto-generated definition
+create table task_lists
+(
+    id         serial
+        constraint task_lists_pk
+            primary key,
+    title      text                                not null,
+    color      text,
+    position   double precision                    not null,
+    board_id   text                                not null
+        constraint task_lists___fk_board
+            references boards,
+    created_at timestamp default CURRENT_TIMESTAMP not null,
+    archived   boolean   default false             not null
+);
+
+alter table task_lists
+    owner to root;
+

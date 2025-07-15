@@ -2,20 +2,12 @@ package org.kevin.trello_v2.tasks.controller
 
 import org.kevin.trello_v2.auth.context.AccountContext
 import org.kevin.trello_v2.framework.response.ApiResponse
-import org.kevin.trello_v2.tasks.controller.requests.CreateBoardRequest
-import org.kevin.trello_v2.tasks.controller.requests.InviteMemberRequest
-import org.kevin.trello_v2.tasks.controller.requests.UpdateBoardRequest
-import org.kevin.trello_v2.tasks.controller.requests.UpdateMemberRequest
 import org.kevin.trello_v2.tasks.model.MembershipRole
 import org.kevin.trello_v2.tasks.service.BoardService
+import org.kevin.trello_v2.tasks.service.ListService
 import org.kevin.trello_v2.tasks.service.MemberService
-import org.kevin.trello_v2.tasks.service.vo.ArchiveBoardVO
-import org.kevin.trello_v2.tasks.service.vo.CloseBoardVO
-import org.kevin.trello_v2.tasks.service.vo.CreateBoardVO
-import org.kevin.trello_v2.tasks.service.vo.InviteMemberVO
-import org.kevin.trello_v2.tasks.service.vo.RemoveMemberVO
-import org.kevin.trello_v2.tasks.service.vo.UpdateBoardVO
-import org.kevin.trello_v2.tasks.service.vo.UpdateMemberVO
+import org.kevin.trello_v2.tasks.service.vo.*
+import org.kevin.trello_v2.tasks.controller.requests.*
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -30,11 +22,20 @@ import org.springframework.web.bind.annotation.RestController
 class TaskController(
     private val boardService: BoardService,
     private val memberService: MemberService,
+    private val listService: ListService,
 ) {
     @GetMapping("/board-list")
     fun boardList(): ApiResponse {
         val account = AccountContext.currentAccountOrThrow()
         return boardService.listOfBoard(account)
+    }
+
+    @GetMapping("/board/{id}")
+    fun boardContent(
+        @PathVariable("id") id: String,
+    ): ApiResponse {
+        val account = AccountContext.currentAccountOrThrow()
+        return boardService.boardContent(id, account)
     }
 
     @PostMapping("/board")
@@ -146,6 +147,23 @@ class TaskController(
             user = account,
         ).let {
             return memberService.removeMember(it)
+        }
+    }
+
+    @PostMapping("/board/{id}/list")
+    fun createList(
+        @PathVariable("id") id: String,
+        @RequestBody request: CreateListRequest,
+    ): ApiResponse {
+        val account = AccountContext.currentAccountOrThrow()
+        val (title) = request
+
+        CreateListVO(
+            title = title,
+            boardId = id,
+            user = account,
+        ).let {
+            return listService.createList(it)
         }
     }
 }
