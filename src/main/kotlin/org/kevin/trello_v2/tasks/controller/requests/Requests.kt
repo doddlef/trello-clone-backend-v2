@@ -23,3 +23,14 @@ data class UpdateMemberRequest(
 data class CreateListRequest(
     val title: String,
 )
+
+/**
+ * @param title: The new title of the list. If null, the title will not be updated.
+ * @param color: The new color of the list. If null, the color will not be updated.
+ * @param clearColor: If true, the color will be set to null.
+ */
+data class UpdateListRequest(
+    val title: String? = null,
+    val color: String? = null,
+    val clearColor: Boolean? = null,
+)

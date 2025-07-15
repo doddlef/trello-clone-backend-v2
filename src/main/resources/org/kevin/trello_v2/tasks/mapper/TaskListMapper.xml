@@ -43,4 +43,18 @@
             </if>
         </where>
     </select>
+
+    <update id="update">
+        UPDATE task_lists
+        <set>
+            <if test="title != null">title = #{title},</if>
+            <if test="!clearColor and color != null">color = #{color},</if>
+            <if test="clearColor">color = NULL,</if>
+            <if test="position != null">position = #{position},</if>
+            <if test="archived != null">archived = #{archived},</if>
+        </set>
+        <where>
+            id = #{id}
+        </where>
+    </update>
 </mapper>

@@ -166,4 +166,23 @@ class TaskController(
             return listService.createList(it)
         }
     }
+
+    @PutMapping("/list/{id}")
+    fun editList(
+        @PathVariable("id") id: Long,
+        @RequestBody request: UpdateListRequest,
+    ): ApiResponse {
+        val account = AccountContext.currentAccountOrThrow()
+        val (title, color, clearColor) = request
+
+        EditListVO(
+            listId = id,
+            title = title,
+            color = color,
+            clearColor = clearColor,
+            user = account,
+        ).let {
+            return listService.editList(it)
+        }
+    }
 }
