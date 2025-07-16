@@ -12,6 +12,7 @@ import org.kevin.trello_v2.tasks.mapper.queries.TaskListSearchQuery
 import org.kevin.trello_v2.tasks.mapper.queries.TaskListUpdateQuery
 import org.kevin.trello_v2.tasks.model.MembershipRole
 import org.kevin.trello_v2.tasks.service.vo.EditListVO
+import org.kevin.trello_v2.tasks.service.vo.MoveListVO
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -100,6 +101,51 @@ class ListServiceImpl(
 
         return ApiResponse.success()
             .message("edit list success")
+            .build()
+    }
+
+    @Transactional
+    override fun moveList(vo: MoveListVO): ApiResponse {
+        val (listId, afterId, user) = vo
+
+        // validate permission and existence
+        val boardView = pathHelper.pathOfTaskList(userUid = user.uid, listId = listId).boardView?.also {
+            if (it.closed) throw TrelloException("Board is closed, no modifications allowed")
+            if (it.role == MembershipRole.VIEWER) throw TrelloException("Viewers can only read board content")
+        } ?: throw TrelloException("List not exists")
+
+        val taskLists = TaskListSearchQuery(boardId = boardView.boardId)
+            .let { listMapper.search(it) }
+            .sortedBy { it.position }
+        if (afterId != null && taskLists.none { it.id == afterId })
+            throw TrelloException("Destination position not exists")
+
+        val afterIndex = afterId?.let { taskLists.indexOfFirst { it.id == afterId } } ?: -1
+        val beforeIndex = afterIndex + 1
+
+        val prevPosition = if (afterIndex >= 0)
+            taskLists[afterIndex].position
+        else
+            0.0
+
+        val nextPosition = if (beforeIndex < taskLists.size)
+            taskLists[beforeIndex].position
+        else
+            prevPosition + LIST_POSITION_INTERVAL
+
+        val newPosition = (prevPosition + nextPosition) / 2
+
+        TaskListUpdateQuery(
+            id = listId,
+            position = newPosition,
+        ).let { query ->
+            val count = listMapper.update(query)
+            if (count != 1) throw TrelloException("Failed to move list")
+        }
+
+        return ApiResponse.success()
+            .message("move list success")
+            .add("newPosition" to newPosition)
             .build()
     }
 }

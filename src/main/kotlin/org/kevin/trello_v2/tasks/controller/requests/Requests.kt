@@ -34,3 +34,7 @@ data class UpdateListRequest(
     val color: String? = null,
     val clearColor: Boolean? = null,
 )
+
+data class MoveListRequest(
+    val afterId: Long? = null,
+)

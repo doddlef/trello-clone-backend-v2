@@ -185,4 +185,21 @@ class TaskController(
             return listService.editList(it)
         }
     }
+
+    @PutMapping("/list/{id}/move")
+    fun moveList(
+        @PathVariable("id") id: Long,
+        @RequestBody request: MoveListRequest,
+    ): ApiResponse {
+        val account = AccountContext.currentAccountOrThrow()
+        val (afterId) = request
+
+        MoveListVO(
+            listId = id,
+            afterId = afterId,
+            user = account,
+        ).let {
+            return listService.moveList(it)
+        }
+    }
 }

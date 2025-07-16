@@ -11,6 +11,7 @@ import org.kevin.trello_v2.account.repo.AccountRepo
 import org.kevin.trello_v2.auth.AuthProperties
 import org.kevin.trello_v2.framework.response.ResponseCode
 import org.kevin.trello_v2.tasks.mapper.TaskListMapper
+import org.kevin.trello_v2.tasks.mapper.queries.TaskListSearchQuery
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -223,5 +224,121 @@ class ListTests @Autowired constructor(
         assertNotNull(list)
         assertEquals("Updated List", updated?.title, "List title should be updated")
         assertEquals("#F0F0F0", updated?.color, "List color should be updated")
+    }
+
+    @Test
+    fun `move list`() {
+        val listIds = mutableListOf<Long>()
+        for (i in 1..3) {
+            """
+                {
+                    "title": "List $i"
+                }
+            """.trimIndent()
+                .let { request ->
+                    mockMvc.perform(
+                        post("/api/v1/board/{boardId}/list", boardId)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(request)
+                            .cookie(accessCookie, refreshCookie)
+                    )
+                        .andExpect(status().isOk)
+                        .andExpect(jsonPath("$.code").value(ResponseCode.SUCCESS.code))
+                        .andExpect(jsonPath("$.data.listId").exists())
+                        .andReturn()
+                        .response
+                        .contentAsString
+                        .let { str ->
+                            ObjectMapper().readTree(str)
+                                .path("data")
+                                .path("listId")
+                                .asLong()
+                                .let { listIds.add(it) }
+                        }
+                }
+        }
+
+        TaskListSearchQuery(
+            boardId = boardId,
+        )
+            .let { listMapper.search(it).sortedBy { it.position } }
+            .also {
+                assertEquals(3, it.size, "There should be 3 lists in the board")
+                assertEquals("List 1", it[0].title, "First list should be 'List 1'")
+                assertEquals("List 2", it[1].title, "Second list should be 'List 2'")
+                assertEquals("List 3", it[2].title, "Third list should be 'List 3'")
+            }
+
+        // move list 3 to head
+        """
+            {
+                "afterId": null
+            }
+        """.trimIndent()
+            .let { request ->
+                mockMvc.perform(
+                    put("/api/v1/list/{listId}/move", listIds[2])
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request)
+                        .cookie(accessCookie, refreshCookie)
+                )
+                    .andExpect(status().isOk)
+                    .andExpect(jsonPath("$.code").value(ResponseCode.SUCCESS.code))
+                    .andDo(
+                        document(
+                            "move-list",
+                            pathParameters(
+                                parameterWithName("listId").description("The ID of the list to move")
+                            ),
+                            requestFields(
+                                fieldWithPath("afterId").optional().description("The ID of the list after which to move this list. If null, move to head")
+                            ),
+                            responseFields(
+                                fieldWithPath("code").description("Response code"),
+                                fieldWithPath("message").description("Response message"),
+                                fieldWithPath("data.newPosition").description("The new position of the list after moving")
+                            )
+                        )
+                    )
+            }
+
+        TaskListSearchQuery(
+            boardId = boardId,
+        )
+            .let { listMapper.search(it).sortedBy { it.position } }
+            .also {
+                assertEquals(3, it.size, "There should be 3 lists in the board")
+                assertEquals("List 3", it[0].title, "First list should be 'List 3' after moving")
+                assertEquals("List 1", it[1].title, "Second list should be 'List 1' after moving")
+                assertEquals("List 2", it[2].title, "Third list should be 'List 2' after moving")
+            }
+
+        // move list 1 to tail
+        """
+            {
+                "afterId": ${listIds[1]}
+            }
+        """.trimIndent()
+            .let { request ->
+                mockMvc.perform(
+                    put("/api/v1/list/{listId}/move", listIds[0])
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request)
+                        .cookie(accessCookie, refreshCookie)
+                )
+                    .andExpect(status().isOk)
+                    .andExpect(jsonPath("$.code").value(ResponseCode.SUCCESS.code))
+            }
+
+        TaskListSearchQuery(
+            boardId = boardId,
+        )
+            .let { listMapper.search(it).sortedBy { it.position } }
+            .also {
+                assertEquals(3, it.size, "There should be 3 lists in the board")
+                assertEquals("List 3", it[0].title, "First list should be 'List 3' after moving")
+                assertEquals("List 2", it[1].title, "Second list should be 'List 2' after moving")
+                assertEquals("List 1", it[2].title, "Third list should be 'List 1' after moving")
+            }
     }
 }
