@@ -1,5 +1,6 @@
 package org.kevin.trello_v2.tasks.service.impl
 
+import org.kevin.trello_v2.account.model.Account
 import org.kevin.trello_v2.framework.TrelloException
 import org.kevin.trello_v2.framework.response.ApiResponse
 import org.kevin.trello_v2.tasks.repo.TaskPathHelper
@@ -30,6 +31,19 @@ class ListServiceImpl(
     private fun validateListColor(color: String) {
         if (!color.matches(Regex("^#([A-Fa-f0-9]{6})$")))
             throw IllegalArgumentException("Color must be in hex format, e.g. #f0f0f0")
+    }
+
+    override fun listContent(
+        listId: Long,
+        user: Account
+    ): ApiResponse {
+        val pathResult = pathHelper.pathOfTaskList(userUid = user.uid, listId = listId)
+        pathResult.boardView?: throw TrelloException("List not exists")
+        pathResult.taskList?: throw TrelloException("List not exists")
+
+        return ApiResponse.success()
+            .add("list" to pathResult.taskList.asDto())
+            .build()
     }
 
     @Transactional
@@ -146,6 +160,31 @@ class ListServiceImpl(
         return ApiResponse.success()
             .message("move list success")
             .add("newPosition" to newPosition)
+            .build()
+    }
+
+    @Transactional
+    override fun archiveList(
+        listId: Long,
+        user: Account
+    ): ApiResponse {
+        // validate permission and existence
+        pathHelper.pathOfTaskList(userUid = user.uid, listId = listId).boardView?.let {
+            if (it.closed) throw TrelloException("Board is closed, no modifications allowed")
+            if (it.role == MembershipRole.VIEWER) throw TrelloException("Viewers can only read board content")
+        } ?: throw TrelloException("List not exists")
+
+        // update the list to archived
+        TaskListUpdateQuery(
+            id = listId,
+            archived = true,
+        ).let { query ->
+            val count = listMapper.update(query)
+            if (count != 1) throw TrelloException("Failed to archive list")
+        }
+
+        return ApiResponse.success()
+            .message("archive list success")
             .build()
     }
 }

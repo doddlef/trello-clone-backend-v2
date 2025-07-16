@@ -10,6 +10,11 @@ import org.kevin.trello_v2.tasks.model.TaskList
 interface TaskListMapper {
     fun insert(query: TaskListInsertQuery): Int
     fun findById(id: Long): TaskList?
+
+    /**
+     * Search for task lists based on various criteria.
+     * the query is set to include only non-archived lists by default.
+     */
     fun search(query: TaskListSearchQuery): List<TaskList>
     fun update(query: TaskListUpdateQuery): Int
 }

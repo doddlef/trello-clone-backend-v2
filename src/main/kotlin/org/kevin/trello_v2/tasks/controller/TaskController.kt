@@ -150,6 +150,14 @@ class TaskController(
         }
     }
 
+    @GetMapping("/list/{id}")
+    fun listContent(
+        @PathVariable("id") id: Long,
+    ): ApiResponse {
+        val account = AccountContext.currentAccountOrThrow()
+        return listService.listContent(id, account)
+    }
+
     @PostMapping("/board/{id}/list")
     fun createList(
         @PathVariable("id") id: String,
@@ -201,5 +209,13 @@ class TaskController(
         ).let {
             return listService.moveList(it)
         }
+    }
+
+    @DeleteMapping("/list/{id}")
+    fun archiveList(
+        @PathVariable("id") id: Long,
+    ): ApiResponse {
+        val account = AccountContext.currentAccountOrThrow()
+        return listService.archiveList(id, account)
     }
 }

@@ -341,4 +341,61 @@ class ListTests @Autowired constructor(
                 assertEquals("List 1", it[2].title, "Third list should be 'List 1' after moving")
             }
     }
+
+    @Test
+    fun `archive list`() {
+        val listId = """
+            {
+                "title": "test list"
+            }
+        """.trimIndent()
+            .let {
+                return@let mockMvc.perform(
+                    post("/api/v1/board/{boardId}/list", boardId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(it)
+                        .cookie(accessCookie, refreshCookie)
+                )
+                    .andExpect(status().isOk)
+                    .andExpect(jsonPath("$.code").value(ResponseCode.SUCCESS.code))
+                    .andExpect(jsonPath("$.data.listId").exists())
+                    .andReturn()
+                    .response
+                    .contentAsString
+                    .let { str ->
+                        ObjectMapper().readTree(str)
+                            .path("data")
+                            .path("listId")
+                            .asLong()
+                    }
+            }
+
+        val list = listMapper.findById(listId)
+        assertNotNull(list)
+
+        mockMvc.perform(
+            delete("/api/v1/list/{listId}", listId)
+                .cookie(accessCookie, refreshCookie)
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.code").value(ResponseCode.SUCCESS.code))
+            .andDo(
+                document(
+                    "archive-list",
+                    pathParameters(
+                        parameterWithName("listId").description("The ID of the list to archive")
+                    ),
+                    responseFields(
+                        fieldWithPath("code").description("Response code"),
+                        fieldWithPath("message").description("Response message")
+                    )
+                )
+            )
+
+        listId.let {
+            val archivedList = listMapper.findById(it)
+            assertNotNull(archivedList, "List should still exist after archiving")
+            assertEquals(true, archivedList.archived, "List should be archived")
+        }
+    }
 }
