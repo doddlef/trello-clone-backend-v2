@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.kevin.trello_v2.tasks.mapper.CardMapper">
+    <sql id="cardColumns">
+        id, title, description, finished, position, due_date, list_id, created_at, updated_at, archived
+    </sql>
+
+    <resultMap id="CardResultMap" type="org.kevin.trello_v2.tasks.model.Card">
+        <id property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="description" column="description"/>
+        <result property="finished" column="finished"/>
+        <result property="position" column="position"/>
+        <result property="dueDate" column="due_date"/>
+        <result property="listId" column="list_id"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="archived" column="archived"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO cards (title, position, list_id)
+        VALUES (#{title}, #{position}, #{listId})
+    </insert>
+
+    <update id="update">
+        UPDATE cards
+        <set>
+            <if test="title != null">title = #{title},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="finished != null">finished = #{finished},</if>
+            <if test="position != null">position = #{position},</if>
+            <if test="dueDate != null">due_date = #{dueDate},</if>
+            <if test="listId != null">list_id = #{listId},</if>
+            <if test="archived != null">archived = #{archived},</if>
+        </set>
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <select id="findById" resultMap="CardResultMap">
+        SELECT <include refid="cardColumns"/>
+        FROM cards
+        WHERE id = #{id}
+    </select>
+
+    <select id="search" resultMap="CardResultMap">
+        SELECT <include refid="cardColumns"/>
+        FROM cards
+        <where>
+            <if test="listId != null">list_id = #{listId}</if>
+            <if test="archived != null">AND archived = #{archived}</if>
+        </where>
+    </select>
+</mapper>

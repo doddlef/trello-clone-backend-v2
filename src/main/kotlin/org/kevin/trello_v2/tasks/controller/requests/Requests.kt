@@ -1,5 +1,7 @@
 package org.kevin.trello_v2.tasks.controller.requests
 
+import java.time.LocalDateTime
+
 data class CreateBoardRequest(
     val title: String,
     val description: String?
@@ -37,4 +39,14 @@ data class UpdateListRequest(
 
 data class MoveListRequest(
     val afterId: Long? = null,
+)
+
+data class CreateCardRequest(
+    val title: String,
+)
+
+data class EditCardRequest(
+    val title: String? = null,
+    val description: String? = null,
+    val dueDate: String? = null,
 )

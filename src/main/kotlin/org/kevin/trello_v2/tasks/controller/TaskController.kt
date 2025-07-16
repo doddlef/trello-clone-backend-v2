@@ -8,6 +8,7 @@ import org.kevin.trello_v2.tasks.service.ListService
 import org.kevin.trello_v2.tasks.service.MemberService
 import org.kevin.trello_v2.tasks.service.vo.*
 import org.kevin.trello_v2.tasks.controller.requests.*
+import org.kevin.trello_v2.tasks.service.CardService
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import java.time.LocalDate
 
 @RestController
 @RequestMapping("/api/v1")
@@ -23,6 +25,7 @@ class TaskController(
     private val boardService: BoardService,
     private val memberService: MemberService,
     private val listService: ListService,
+    private val cardService: CardService,
 ) {
     @GetMapping("/board-list")
     fun boardList(): ApiResponse {
@@ -217,5 +220,66 @@ class TaskController(
     ): ApiResponse {
         val account = AccountContext.currentAccountOrThrow()
         return listService.archiveList(id, account)
+    }
+
+    @PostMapping("/list/{id}/card")
+    fun createCard(
+        @PathVariable("id") id: Long,
+        @RequestBody request: CreateCardRequest,
+    ): ApiResponse {
+        val account = AccountContext.currentAccountOrThrow()
+        val (title) = request
+
+        CreateCardVO(
+            title = title,
+            listId = id,
+            user = account,
+        ).let {
+            return cardService.createCard(it)
+        }
+    }
+
+    @PutMapping("/card/{id}/edit")
+    fun editCard(
+        @PathVariable("id") id: Long,
+        @RequestBody request: EditCardRequest,
+    ): ApiResponse {
+        val account = AccountContext.currentAccountOrThrow()
+        val (title, description, dueDateStr) = request
+        val dueDate = dueDateStr?.let { LocalDate.parse(it) }
+
+        CardEditVO(
+            cardId = id,
+            title = title,
+            description = description,
+            dueDate = dueDate,
+            user = account,
+        ).let {
+            return cardService.editCard(it)
+        }
+    }
+
+    @PutMapping("/card/{id}/complete")
+    fun completeTask(
+        @PathVariable("id") id: Long,
+    ): ApiResponse {
+        val account = AccountContext.currentAccountOrThrow()
+        return cardService.completeTask(id, account)
+    }
+
+    @PutMapping("/card/{id}/incomplete")
+    fun incompleteTask(
+        @PathVariable("id") id: Long,
+    ): ApiResponse {
+        val account = AccountContext.currentAccountOrThrow()
+        return cardService.incompleteTask(id, account)
+    }
+
+    @DeleteMapping("/card/{id}")
+    fun archiveTask(
+        @PathVariable("id") id: Long,
+    ): ApiResponse {
+        val account = AccountContext.currentAccountOrThrow()
+        return cardService.archiveTask(id, account)
     }
 }

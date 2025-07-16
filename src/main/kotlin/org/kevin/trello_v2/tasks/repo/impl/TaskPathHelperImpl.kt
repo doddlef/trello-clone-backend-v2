@@ -1,5 +1,6 @@
 package org.kevin.trello_v2.tasks.repo.impl
 
+import org.kevin.trello_v2.tasks.mapper.CardMapper
 import org.kevin.trello_v2.tasks.mapper.TaskListMapper
 import org.kevin.trello_v2.tasks.repo.BoardRepo
 import org.kevin.trello_v2.tasks.repo.MemberRepo
@@ -12,6 +13,7 @@ class TaskPathHelperImpl(
     private val boardRepo: BoardRepo,
     private val membersRepo: MemberRepo,
     private val taskListMapper: TaskListMapper,
+    private val cardMapper: CardMapper,
 ): TaskPathHelper {
 
     override fun pathOfBoard(
@@ -19,7 +21,7 @@ class TaskPathHelperImpl(
         boardId: String
     ): PathResult {
         val board = boardRepo.findById(boardId)?.takeUnless { it.archived }
-        val member = board?.let { membersRepo.findByKey(userUid, boardId)?.takeIf { it.active } }
+        val member = board?.let { membersRepo.findByKey(userUid, boardId)?.takeIf { it.active }}
         return PathResult(board, member)
     }
 
@@ -31,5 +33,13 @@ class TaskPathHelperImpl(
         val board = taskList?.let { boardRepo.findById(it.boardId)?.takeUnless { board -> board.archived }}
         val member = board?.let { membersRepo.findByKey(userUid, it.id)?.takeIf { m -> m.active }}
         return PathResult(board, member, taskList)
+    }
+
+    override fun pathOfCard(userUid: String, cardId: Long): PathResult {
+        val card = cardMapper.findById(cardId)?.takeUnless { it.archived }
+        val taskList = card?.let { taskListMapper.findById(it.listId)?.takeUnless { l -> l.archived }}
+        val board = taskList?.let { boardRepo.findById(it.boardId)?.takeUnless { board -> board.archived }}
+        val member = board?.let { membersRepo.findByKey(userUid, it.id)?.takeIf { m -> m.active }}
+        return PathResult(board, member, taskList, card)
     }
 }

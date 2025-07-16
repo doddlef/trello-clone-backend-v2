@@ -192,3 +192,30 @@ create table task_lists
 alter table task_lists
     owner to root;
 
+-- cards table
+-- auto-generated definition
+create table cards
+(
+    id          serial
+        constraint cards_pk
+            primary key,
+    title       text                                not null,
+    description text,
+    finished    boolean   default false             not null,
+    position    double precision                    not null,
+    due_date    date,
+    list_id     integer                             not null
+        constraint cards___fk_list
+            references task_lists,
+    created_at  timestamp default CURRENT_TIMESTAMP not null,
+    updated_at  timestamp default CURRENT_TIMESTAMP not null,
+    archived    boolean   default false             not null
+);
+
+alter table cards
+    owner to root;
+
+create trigger set_updated_at
+    before update on cards
+    for each row
+execute function update_updated_at_column();

@@ -82,6 +82,7 @@ class ListServiceImpl(
         return ApiResponse.success()
             .message("create list success")
             .add("listId" to listId)
+            .add("position" to position)
             .build()
     }
 
@@ -121,6 +122,9 @@ class ListServiceImpl(
     @Transactional
     override fun moveList(vo: MoveListVO): ApiResponse {
         val (listId, afterId, user) = vo
+
+        if (afterId != null && afterId == listId)
+            throw TrelloException("Cannot move a list after itself")
 
         // validate permission and existence
         val boardView = pathHelper.pathOfTaskList(userUid = user.uid, listId = listId).boardView?.also {

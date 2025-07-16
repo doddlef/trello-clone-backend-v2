@@ -146,7 +146,8 @@ class ListTests @Autowired constructor(
                             responseFields(
                                 fieldWithPath("code").description("Response code"),
                                 fieldWithPath("message").description("Response message"),
-                                fieldWithPath("data.listId").description("Created list ID")
+                                fieldWithPath("data.listId").description("Created list ID"),
+                                fieldWithPath("data.position").description("The position of the list in the board")
                             )
                         )
                     )
