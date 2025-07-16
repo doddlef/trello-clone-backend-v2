@@ -259,6 +259,24 @@ class TaskController(
         }
     }
 
+    @PutMapping("/card/{id}/move")
+    fun moveCard(
+        @PathVariable("id") id: Long,
+        @RequestBody request: MoveCardRequest,
+    ): ApiResponse {
+        val account = AccountContext.currentAccountOrThrow()
+        val (listId, afterId) = request
+
+        CardMoveVO(
+            cardId = id,
+            listId = listId,
+            afterId = afterId,
+            user = account,
+        ).let {
+            return cardService.moveCard(it)
+        }
+    }
+
     @PutMapping("/card/{id}/complete")
     fun completeTask(
         @PathVariable("id") id: Long,

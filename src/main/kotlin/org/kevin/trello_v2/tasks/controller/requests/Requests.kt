@@ -50,3 +50,8 @@ data class EditCardRequest(
     val description: String? = null,
     val dueDate: String? = null,
 )
+
+data class MoveCardRequest(
+    val listId: Long? = null,
+    val afterId: Long? = null,
+)

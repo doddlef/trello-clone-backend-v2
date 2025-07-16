@@ -1,5 +1,6 @@
 package org.kevin.trello_v2.tasks.model
 
+import java.time.LocalDate
 import java.time.LocalDateTime
 import kotlin.Long
 
@@ -9,7 +10,7 @@ data class Card(
     val description: String?,
     val finished: Boolean,
     val position: Double,
-    val dueDate: LocalDateTime?,
+    val dueDate: LocalDate?,
     val listId: Long,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
@@ -47,6 +48,6 @@ data class CardDto(
     val description: String?,
     val finished: Boolean,
     val position: Double,
-    val dueDate: LocalDateTime?,
+    val dueDate: LocalDate?,
     val listId: Long,
 )
